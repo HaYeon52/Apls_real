@@ -1,10 +1,5 @@
 import { UserData } from '../App';
-
-interface Course {
-  name: string;
-  description: string;
-  semester: string; // "1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"
-}
+import { allCourses, Course } from './courseData';
 
 interface Lab {
   name: string;
@@ -18,166 +13,75 @@ interface MilitaryTiming {
 }
 
 interface Recommendations {
-  majorCourses: Course[];
+  majorCoursesBySemester: { [key: string]: Course[] };
   generalCourses: Course[];
   certifications: string[];
   externalActivities: string[];
   internalActivities: string[];
   labs: Lab[];
   militaryTiming: MilitaryTiming;
+  completedMajorCredits: number;
+  recommendedMajorCredits: number;
+  totalMajorCredits: number;
 }
 
-// 전체 전공 수업 목록 (학년-학기별)
-const allMajorCourses: Course[] = [
-  // 1학년 1학기
-  { name: '새내기세미나', description: '대학 생활 및 산업공학과 소개', semester: '1-1' },
-  { name: '테크노경영학', description: '기술과 경영의 융합', semester: '1-1' },
-  
-  // 1학년 2학기
-  { name: '산업공학개론', description: '산업공학의 기초 개념과 방법론', semester: '1-2' },
-  
-  // 2학년 1학기
-  { name: '객체지향프로그래밍', description: 'Java/C++ 기반 객체지향 프로그래밍', semester: '2-1' },
-  { name: '산공수학', description: '산업공학을 위한 수학적 기초', semester: '2-1' },
-  { name: '생산시스템개론', description: '생산 시스템의 설계 및 운영', semester: '2-1' },
-  { name: '확률통계론', description: '확률 이론 및 통계적 추론', semester: '2-1' },
-  
-  // 2학년 2학기
-  { name: '공업경제학', description: '공학적 의사결정을 위한 경제학', semester: '2-2' },
-  { name: '데이터구조론', description: '자료구조 및 알고리즘 기초', semester: '2-2' },
-  { name: '선형모델수치해석', description: '선형대수 및 수치해석 기법', semester: '2-2' },
-  { name: '수리통계학', description: '통계적 추정 및 검정', semester: '2-2' },
-  { name: '정보통신시스템개론', description: '정보통신 시스템의 이해', semester: '2-2' },
-  
-  // 3학년 1학기
-  { name: '경영과학과운영연구1', description: '선형계획법 및 최적화 기법', semester: '3-1' },
-  { name: '금융공학개론', description: '금융상품 및 리스크 관리', semester: '3-1' },
-  { name: '물류관리', description: '물류 시스템 설계 및 관리', semester: '3-1' },
-  { name: '운용관리1', description: '생산운영관리의 기초', semester: '3-1' },
-  { name: '인간공학기초', description: '인간-시스템 상호작용', semester: '3-1' },
-  { name: '품질경영', description: '품질관리 및 개선 기법', semester: '3-1' },
-  
-  // 3학년 2학기
-  { name: '경영과학과운영연구2', description: '정수계획법 및 네트워크 최적화', semester: '3-2' },
-  { name: '신뢰성및보전공학', description: '시스템 신뢰성 분석', semester: '3-2' },
-  { name: '알고리듬설계및분석', description: '알고리즘 설계 및 복잡도 분석', semester: '3-2' },
-  { name: '운용관리2', description: '생산계획 및 재고관리', semester: '3-2' },
-  { name: '응용확률방법론', description: '확률 모델 및 응용', semester: '3-2' },
-  { name: '인간공학응용', description: 'UX/UI 설계 및 평가', semester: '3-2' },
-  { name: '컴퓨터시뮬레이션', description: '시뮬레이션 모델링 및 분석', semester: '3-2' },
-  
-  // 4학년 1학기
-  { name: '경영프로세스관리론', description: '비즈니스 프로세스 혁신', semester: '4-1' },
-  { name: '공급사슬경영(SCM)', description: '공급망 전략 및 최적화', semester: '4-1' },
-  { name: '산업공학종합설계1', description: '산업공학 캡스톤 프로젝트 1', semester: '4-1' },
-  { name: '생체정보학', description: '생체 신호 및 의료 데이터 분석', semester: '4-1' },
-  { name: '실용공학연구5', description: '실무 프로젝트 연구', semester: '4-1' },
-  { name: '실험계획법', description: '효율적 실험 설계 및 분석', semester: '4-1' },
-  { name: '인간-컴퓨터인터페이스설계', description: 'HCI 설계 및 평가', semester: '4-1' },
-  
-  // 4학년 2학기
-  { name: '경영정보시스템', description: 'ERP 및 정보시스템 전략', semester: '4-2' },
-  { name: '기업진단론', description: '기업 분석 및 진단', semester: '4-2' },
-  { name: '산업공학종합설계2', description: '산업공학 캡스톤 프로젝트 2', semester: '4-2' },
-  { name: '실용공학연구6', description: '실무 프로젝트 연구', semester: '4-2' },
-  { name: '정보기술경영', description: 'IT 전략 및 디지털 전환', semester: '4-2' },
-  { name: '정보화와안전관리', description: '정보보안 및 안전관리', semester: '4-2' },
-  { name: '첨단생산시스템', description: '스마트팩토리 및 자동화', semester: '4-2' },
-  { name: '프로젝트관리공학', description: '프로젝트 계획 및 통제', semester: '4-2' },
-];
-
-// 관심 분야별 추천 과목 매핑
-const interestAreaCourseMap: Record<string, string[]> = {
-  '데이터': [
-    '객체지향프로그래밍', '확률통계론', '데이터구조론', '수리통계학', '선형모델수치해석',
-    '알고리듬설계및분석', '응용확률방법론', '컴퓨터시뮬레이션', '생체정보학', '실험계획법'
-  ],
-  '금융': [
-    '확률통계론', '공업경제학', '수리통계학', '경영과학과운영연구1', '금융공학개론',
-    '경영과학과운영연구2', '응용확률방법론', '기업진단론'
-  ],
-  '물류': [
-    '생산시스템개론', '선형모델수치해석', '경영과학과운영연구1', '물류관리', '운용관리1',
-    '경영과학과운영연구2', '운용관리2', '공급사슬경영(SCM)', '첨단생산시스템'
-  ],
-  '품질': [
-    '확률통계론', '생산시스템개론', '수리통계학', '품질경영', '신뢰성및보전공학',
-    '실험계획법', '컴퓨터시뮬레이션', '첨단생산시스템'
-  ],
-  '전략 컨설팅': [
-    '공업경제학', '경영과학과운영연구1', '운용관리1', '경영과학과운영연구2', '경영프로세스관리론',
-    '경영정보시스템', '기업진단론', '프로젝트관리공학'
-  ],
-  'SCM': [
-    '생산시스템개론', '데이터구조론', '경영과학과운영연구1', '물류관리', '운용관리1',
-    '경영과학과운영연구2', '운용관리2', '경영프로세스관리론', '공급사슬경영(SCM)', '경영정보시스템', '첨단생산시스템'
-  ],
-  '기획': [
-    '공업경제학', '경영과학과운영연구1', '운용관리1', '인간공학기초', '인간공학응용',
-    '경영프로세스관리론', '경영정보시스템', '정보기술경영', '프로젝트관리공학'
-  ],
-  '마케팅': [
-    '확률통계론', '수리통계학', '인간공학기초', '인간공학응용', '실험계획법',
-    '인간-컴퓨터인터페이스설계', '경영정보시스템', '데이터구조론'
-  ],
+// 관심 분야별 과목 연관도 (각 과목이 해당 분야와 얼마나 관련있는지)
+const courseInterestMapping: Record<string, Record<string, number>> = {
+  '객체지향프로그래밍': { '데이터': 1.0, 'SCM': 0.3, '기획': 0.2 },
+  '산공수학': { '데이터': 0.8, '금융': 0.8, '물류': 0.6, '품질': 0.6, '전략 컨설팅': 0.4, 'SCM': 0.6 },
+  '수치해석': { '데이터': 0.9, '금융': 0.7, '물류': 0.5 },
+  '스마트팩토리개론': { '물류': 1.0, 'SCM': 1.0, '품질': 0.8, '데이터': 0.6 },
+  '확률통계론': { '데이터': 1.0, '금융': 0.9, '품질': 0.8, '마케팅': 0.7 },
+  '공업경제학': { '금융': 1.0, '전략 컨설팅': 0.9, '기획': 0.7 },
+  '데이터구조론': { '데이터': 1.0, 'SCM': 0.4, '마케팅': 0.3 },
+  '선형계획법': { '물류': 1.0, 'SCM': 1.0, '데이터': 0.7, '금융': 0.6, '전략 컨설팅': 0.6 },
+  '응용통계학': { '데이터': 1.0, '금융': 0.8, '품질': 0.9, '마케팅': 0.8 },
+  '투자과학': { '금융': 1.0, '전략 컨설팅': 0.6, '기획': 0.5 },
+  '경영과학과운영연구1': { '물류': 0.9, 'SCM': 0.9, '전략 컨설팅': 1.0, '금융': 0.7, '기획': 0.8 },
+  '기계학습과데이터마이닝': { '데이터': 1.0, '마케팅': 0.6, '금융': 0.5 },
+  '물류관리': { '물류': 1.0, 'SCM': 1.0 },
+  '시계열분석및예측': { '데이터': 1.0, '금융': 0.9, '마케팅': 0.6 },
+  '운용관리': { '물류': 0.9, 'SCM': 0.9, '전략 컨설팅': 0.7, '기획': 0.7 },
+  '품질경영': { '품질': 1.0, '전략 컨설팅': 0.6 },
+  '경영과학과운영연구2': { '물류': 0.9, 'SCM': 0.9, '전략 컨설팅': 1.0, '데이터': 0.7 },
+  '경영전략및데이터베이스': { '기획': 1.0, '전략 컨설팅': 0.9, '데이터': 0.7, 'SCM': 0.5 },
+  '공급사슬경영(Scm)': { 'SCM': 1.0, '물류': 1.0, '전략 컨설팅': 0.6 },
+  '금융공학개론': { '금융': 1.0, '데이터': 0.5 },
+  '신뢰성및보전공학': { '품질': 1.0, '물류': 0.4 },
+  '실험계획법': { '품질': 1.0, '데이터': 0.9, '마케팅': 0.6 },
+  '네트워크및재고전략': { '물류': 1.0, 'SCM': 1.0, '전략 컨설팅': 0.5 },
+  '스마트제조데이터분석': { '데이터': 1.0, '물류': 0.7, 'SCM': 0.7, '품질': 0.6 },
+  '산업인공지능시스템응용': { '데이터': 1.0, 'SCM': 0.6, '품질': 0.5 },
+  '인공지능과기계학습': { '데이터': 1.0, '마케팅': 0.4 },
 };
 
 // 학년-학기를 숫자로 변환 (비교를 위해)
 function getSemesterNumber(grade: string, semester: string): number {
-  const gradeNum = grade === '입학예정' ? 1 : parseInt(grade.replace('학년', ''));
+  const gradeNum = parseInt(grade.replace('학년', ''));
   const semesterNum = parseInt(semester.replace('학기', ''));
   return (gradeNum - 1) * 2 + semesterNum;
 }
 
-// 교양 수업 추천
-const generalCoursesMap: Record<string, { name: string; description: string }[]> = {
-  '데이터': [
-    { name: 'Python 프로그래밍', description: '데이터 분석 프로그래밍 기초' },
-    { name: '데이터베이스', description: 'SQL 및 데이터 관리' },
-    { name: '기업가정신과 창업', description: '데이터 기반 스타트업' },
-  ],
-  '금융': [
-    { name: '경제학원론', description: '거시/미시 경제 이해' },
-    { name: '회계학', description: '재무제표 분석' },
-    { name: '금융의 이해', description: '금융시장 및 상품' },
-  ],
-  '물류': [
-    { name: '글로벌 비즈니스', description: '국제 물류 환경' },
-    { name: '경영학원론', description: '경영 전반 이해' },
-    { name: '기업가정신과 창업', description: '물류 스타트업' },
-  ],
-  '품질': [
-    { name: '통계학', description: '통계 분석 기초' },
-    { name: '경영학원론', description: '품질경영 이해' },
-    { name: '기술과 사회', description: '품질과 기술 혁신' },
-  ],
-  '전략 컨설팅': [
-    { name: '경영학원론', description: '경영 전반 이해' },
-    { name: '경제학원론', description: '산업 구조 분석' },
-    { name: '비즈니스 커뮤니케이션', description: '프레젠테이션 및 보고서 작성' },
-  ],
-  'SCM': [
-    { name: '글로벌 비즈니스', description: '글로벌 공급망' },
-    { name: '경영학원론', description: '경영 기초' },
-    { name: '정보시스템', description: 'IT 기반 SCM' },
-  ],
-  '기획': [
-    { name: '경영학원론', description: '경영 전반 이해' },
-    { name: '비즈니스 커뮤니케이션', description: '기획서 작성 및 발표' },
-    { name: '디자인 씽킹', description: '창의적 문제 해결' },
-  ],
-  '마케팅': [
-    { name: '마케팅원론', description: '마케팅 기초' },
-    { name: '소비자 행동론', description: '고객 심리 이해' },
-    { name: '디지털 미디어', description: '온라인 마케팅' },
-  ],
-};
+// 가중치 기반 과목 추천 점수 계산
+function calculateCourseScore(courseName: string, interestAreas: string[]): number {
+  const weights = [0.5, 0.3, 0.2]; // 1순위, 2순위, 3순위
+  let score = 0;
+
+  interestAreas.forEach((area, index) => {
+    const mapping = courseInterestMapping[courseName];
+    if (mapping && mapping[area]) {
+      score += mapping[area] * weights[index];
+    }
+  });
+
+  return score;
+}
 
 // 자격증 추천
 const certificationsMap: Record<string, string[]> = {
   '데이터': ['데이터분석 준전문가(ADsP)', '데이터분석 전문가(ADP)', 'SQL 개발자(SQLD)', '빅데이터분석기사', 'Python 데이터 분석 자격증'],
   '금융': ['재무분석사(CFA)', '금융투자분석사', 'FRM', '증권투자권유자문인력', 'Excel 전문가(MOS)'],
-  '물류': ['물류관리사', '유통관리사', '국제물류사', 'CPIM (생산재고관리)', '화물운송종사자격증'],
+  '물류': ['물류관리사', '유통관리사', '��제물류사', 'CPIM (생산재고관리)', '화물운송종사자격증'],
   '품질': ['품질경영기사', '6시그마 GB/BB', '신뢰성기사', 'ISO 9001 심사원', 'Minitab 자격증'],
   '전략 컨설팅': ['경영지도사', 'PMP', 'CISA', 'CPA', 'Excel 전문가(MOS)'],
   'SCM': ['물류관리사', 'CPIM', 'CSCP', 'ERP 정보관리사', 'SAP 자격증'],
@@ -253,110 +157,233 @@ const labsMap: Record<string, Lab[]> = {
   ],
 };
 
+// 군대 시기 추천 (학년 & 진로방향별)
+function getMilitaryRecommendation(grade: string, careerPaths: string[]): MilitaryTiming {
+  const gradeNum = parseInt(grade.replace('학년', ''));
+  const primaryCareer = careerPaths[0]; // 1순위 진로
+
+  if (primaryCareer === '대학원 진학') {
+    return {
+      period: '학부 졸업 후 ~ 대학원 입학 전',
+      reason: '학부 과정을 마친 후 군 복무를 하고, 복학 없이 바로 대학원에 진학하는 것이 학업 연속성에 유리합니다.',
+      tips: [
+        '4학년 2학기 조기졸업 후 입대하여 복학 과정 생략',
+        '군 복무 중 대학원 준비 (영어, 연구 계획서 등)',
+        '전역 후 바로 대학원 입학으로 시간 효율화',
+        '산업기능요원 지원 고려 (연구실 연계)',
+      ],
+    };
+  } else if (primaryCareer === '창업') {
+    if (gradeNum <= 2) {
+      return {
+        period: '2학년 수료 후',
+        reason: '창업은 타이밍이 중요하므로, 기초를 다진 후 군 복무를 마치고 본격적인 창업 준비를 하는 것이 좋습니다.',
+        tips: [
+          '2학년까지 전공 기초 및 프로그래밍 역량 확보',
+          '군 복무 중 사업 아이템 구상 및 시장 조사',
+          '전역 후 창업 동아리 및 정부 지원사업 활용',
+          '복학 후 창업 경진대회 및 액셀러레이팅 프로그램 참여',
+        ],
+      };
+    } else {
+      return {
+        period: '졸업 후 또는 사업 안정화 후',
+        reason: '이미 고학년이므로 졸업 후 입대하거나, 사업을 시작한 경우 안정화 후 입대를 고려하세요.',
+        tips: [
+          '졸업 후 입대 → 군 복무 중 사업 계획 구체화',
+          '산업기능요원으로 스타트업에서 근무하며 창업 경험 쌓기',
+          '전역 후 정부 지원사업(예비창업패키지, K-Startup 등) 활용',
+          '네트워킹 유지 및 멘토링 활용',
+        ],
+      };
+    }
+  } else {
+    // 취업
+    if (gradeNum <= 2) {
+      return {
+        period: '2학년 수료 후',
+        reason: '전공 기초를 다진 후 군 복무를 마치고, 전역 후 전공심화 및 취업 준비에 집중할 수 있습니다.',
+        tips: [
+          '1-2학년: 전공 핵심 및 교양 이수, 프로그래밍 기초 확립',
+          '군 복무 중: TOEIC/TOEIC Speaking, 자격증 준비',
+          '전역 후 3-4학년: 전공 심화, 인턴십, 공모전 참여',
+          '복학 후 바로 취업 준비 활동 시작 (학점 관리, 대외활동)',
+        ],
+      };
+    } else if (gradeNum === 3) {
+      return {
+        period: '3학년 수료 후',
+        reason: '3학년까지 전공 심화 과목을 이수한 후 입대하면, 전역 후 4학년 때 취업 준비에 집중할 수 있습니다.',
+        tips: [
+          '3학년 동안 전공 핵심 과목 이수 및 학점 관리',
+          '군 복무 중: 어학 성적 확보, 자격증 취득',
+          '전역 후 4학년: 캡스톤 프로젝트, 인턴십, 채용 준비',
+          '전역 시기를 고려하여 하계/동계 인턴십 지원',
+        ],
+      };
+    } else {
+      return {
+        period: '졸업 후 또는 졸업 유예',
+        reason: '4학년이므로 졸업 후 입대하거나, 취업 후 산업기능요원 전환을 고려하세요.',
+        tips: [
+          '졸업 후 입대: 복학 없이 전역 후 바로 취업 준비',
+          '산업기능요원: 취업 후 병역특례로 실무 경험 쌓기',
+          '전역 후 신입/경력 채용 준비 (포트폴리오 강화)',
+          '군 복무 중 자격증 및 어학 성적 준비',
+        ],
+      };
+    }
+  }
+}
+
 export function getRecommendations(userData: UserData): Recommendations {
   const recommendations: Recommendations = {
-    majorCourses: [],
+    majorCoursesBySemester: {},
     generalCourses: [],
     certifications: [],
     externalActivities: [],
     internalActivities: [],
     labs: [],
     militaryTiming: { period: '', reason: '', tips: [] },
+    completedMajorCredits: 0,
+    recommendedMajorCredits: 0,
+    totalMajorCredits: 0,
   };
 
   // 현재 학년-학기 숫자
   const currentSemesterNum = getSemesterNumber(userData.grade, userData.semester);
 
-  // 관심 분야에 맞는 과목 이름 목록
-  const recommendedCourseNames = interestAreaCourseMap[userData.interestArea] || [];
+  // 이수 완료한 전공 과목의 학점 계산
+  const completedCourses = allCourses.filter(course => 
+    userData.completedCourses.includes(course.courseCode) && !course.category.includes('교양')
+  );
+  
+  recommendations.completedMajorCredits = completedCourses.reduce((sum, course) => {
+    const credits = parseFloat(course.credits.split('-')[0]);
+    return sum + credits;
+  }, 0);
 
-  // 전공 수업 필터링: 현재 학기 이후 + 관심 분야에 맞는 과목
-  recommendations.majorCourses = allMajorCourses
-    .filter(course => {
-      const [grade, sem] = course.semester.split('-');
-      const courseSemesterNum = (parseInt(grade) - 1) * 2 + parseInt(sem);
-      
-      // 현재 학기 이후의 과목만
-      if (courseSemesterNum < currentSemesterNum) return false;
-      
-      // 관심 분야에 맞는 과목이거나 필수 과목
-      return recommendedCourseNames.includes(course.name) || 
-             course.name.includes('세미나') || 
-             course.name.includes('종합설계') ||
-             course.name.includes('실용공학연구');
-    })
-    .map(course => ({
+  // 전공 수업 필터링: 현재 학기 이후
+  const majorCourses = allCourses.filter(course => {
+    // 교양 과목 제외
+    if (course.category.includes('교양')) return false;
+    
+    const [grade, sem] = course.semester.split('-');
+    const courseSemesterNum = (parseInt(grade) - 1) * 2 + parseInt(sem);
+    
+    // 현재 학기 이후의 과목만
+    return courseSemesterNum >= currentSemesterNum;
+  });
+
+  // 가중치 기반 점수 계산 및 정렬
+  const scoredCourses = majorCourses.map(course => ({
+    ...course,
+    score: calculateCourseScore(course.name, userData.interestArea),
+  }));
+
+  // 점수가 0보다 큰 과목만 필터링하고 정렬
+  let recommendedCourses = scoredCourses
+    .filter(course => course.score > 0 || course.category.includes('전공핵심') || course.category.includes('전공기초'))
+    .sort((a, b) => b.score - a.score);
+
+  // 추천 과목의 전공 학점 계산
+  let recommendedCredits = recommendedCourses.reduce((sum, course) => {
+    const credits = parseFloat(course.credits.split('-')[0]);
+    return sum + credits;
+  }, 0);
+
+  // 83학점이 안 되면 추가 과목 추천
+  const targetCredits = 83;
+  const remainingCredits = targetCredits - (recommendations.completedMajorCredits + recommendedCredits);
+  
+  if (remainingCredits > 0) {
+    // 아직 추천되지 않은 전공 과목 중에서 추가
+    const notRecommendedYet = scoredCourses.filter(
+      course => !recommendedCourses.includes(course)
+    ).sort((a, b) => b.score - a.score);
+
+    let additionalCredits = 0;
+    for (const course of notRecommendedYet) {
+      if (additionalCredits >= remainingCredits) break;
+      recommendedCourses.push(course);
+      const credits = parseFloat(course.credits.split('-')[0]);
+      additionalCredits += credits;
+    }
+  }
+
+  // 학기별로 그룹화
+  recommendedCourses.forEach(course => {
+    const semesterKey = course.semester.replace('-', '학년 ') + '학기';
+    if (!recommendations.majorCoursesBySemester[semesterKey]) {
+      recommendations.majorCoursesBySemester[semesterKey] = [];
+    }
+    recommendations.majorCoursesBySemester[semesterKey].push({
       name: course.name,
-      description: `${course.description} (${course.semester.replace('-', '학년 ')}학기)`,
-    }));
+      description: course.description,
+      semester: course.semester,
+      category: course.category,
+      credits: course.credits,
+      courseCode: course.courseCode,
+      lectureHours: course.lectureHours,
+      labHours: course.labHours,
+    });
+  });
 
-  // 교양 수업
-  recommendations.generalCourses = generalCoursesMap[userData.interestArea] || [];
+  // 최종 추천 전공 학점 계산
+  recommendations.recommendedMajorCredits = recommendedCourses.reduce((sum, course) => {
+    const credits = parseFloat(course.credits.split('-')[0]);
+    return sum + credits;
+  }, 0);
 
-  // 자격증
-  recommendations.certifications = certificationsMap[userData.interestArea] || [];
+  recommendations.totalMajorCredits = recommendations.completedMajorCredits + recommendations.recommendedMajorCredits;
+
+  // 교양 수업 (현재 학기 이후)
+  recommendations.generalCourses = allCourses.filter(course => {
+    if (!course.category.includes('교양')) return false;
+    
+    const [grade, sem] = course.semester.split('-');
+    const courseSemesterNum = (parseInt(grade) - 1) * 2 + parseInt(sem);
+    
+    return courseSemesterNum >= currentSemesterNum;
+  });
+
+  // 자격증 (관심 분야별로 중복 제거하여 결합)
+  const certSet = new Set<string>();
+  userData.interestArea.forEach(area => {
+    const certs = certificationsMap[area] || [];
+    certs.forEach(cert => certSet.add(cert));
+  });
+  recommendations.certifications = Array.from(certSet);
 
   // 대외활동
-  recommendations.externalActivities = externalActivitiesMap[userData.interestArea] || [];
+  const extActSet = new Set<string>();
+  userData.interestArea.forEach(area => {
+    const acts = externalActivitiesMap[area] || [];
+    acts.forEach(act => extActSet.add(act));
+  });
+  recommendations.externalActivities = Array.from(extActSet);
 
   // 대내활동
-  recommendations.internalActivities = internalActivitiesMap[userData.interestArea] || [];
+  const intActSet = new Set<string>();
+  userData.interestArea.forEach(area => {
+    const acts = internalActivitiesMap[area] || [];
+    acts.forEach(act => intActSet.add(act));
+  });
+  recommendations.internalActivities = Array.from(intActSet);
 
-  // 연구실
-  recommendations.labs = labsMap[userData.interestArea] || [];
+  // 연구실 (대학원 진학이 진로에 포함된 경우)
+  if (userData.careerPath.includes('대학원 진학')) {
+    const labSet = new Set<Lab>();
+    userData.interestArea.forEach(area => {
+      const labs = labsMap[area] || [];
+      labs.forEach(lab => labSet.add(lab));
+    });
+    recommendations.labs = Array.from(labSet);
+  }
 
-  // 군대 시기 추천 (남성인 경우)
-  if (userData.gender === '남성') {
-    if (userData.careerPath === '대학원 진학') {
-      recommendations.militaryTiming = {
-        period: '학부 졸업 후 ~ 대학원 입학 전',
-        reason: '학부 과정을 마친 후 군 복무를 하고, 복학 없이 바로 대학원에 진학하는 것이 학업 연속성에 유리합니다.',
-        tips: [
-          '4학년 2학기 조기졸업 후 입대하여 복학 과정 생략',
-          '군 복무 중 대학원 준비 (영어, 연구 계획서 등)',
-          '전역 후 바로 대학원 입학으로 시간 효율화',
-          '산업기능요원 지원 고려 (연구실 연계)',
-        ],
-      };
-    } else if (userData.careerPath === '창업') {
-      recommendations.militaryTiming = {
-        period: '2학년 수료 후 또는 졸업 후',
-        reason: '창업은 타이밍이 중요하므로, 아이템 개발 전이거나 사업 안정화 후가 적절합니다.',
-        tips: [
-          '2학년까지 기초 다진 후 입대 → 전역 후 본격 창업 준비',
-          '졸업 후 입대 → 군 복무 중 사업 아이템 구상',
-          '산업기능요원으로 스타트업에서 근무하며 창업 경험 쌓기',
-          '전역 후 정부 지원사업(예비창업패키지 등) 활용',
-        ],
-      };
-    } else {
-      // 취업
-      const gradeNum = userData.grade === '입학예정' ? 1 : parseInt(userData.grade.replace('학년', ''));
-      
-      if (gradeNum <= 2) {
-        recommendations.militaryTiming = {
-          period: '2학년 수료 후',
-          reason: '전공 기초를 다진 후 군 복무를 마치고, 전역 후 전공심화 및 취업 준비에 집중할 수 있습니다.',
-          tips: [
-            '1-2학년: 전공 기초 및 교양 이수',
-            '군 복무 중: 어학 공부 및 자격증 준비',
-            '전역 후 3-4학년: 전공 심화, 인턴, 공모전 등 취업 준비',
-            '복학 후 바로 취업 준비에 집중 가능',
-          ],
-        };
-      } else {
-        recommendations.militaryTiming = {
-          period: '현재 학년 마친 후 또는 졸업 유예',
-          reason: '현재 학년의 학업을 마무리한 후 군 복무를 하는 것이 학점 관리에 유리합니다.',
-          tips: [
-            '현재 학기 마무리 후 입대하여 학업 연속성 유지',
-            '군 복무 중 어학 및 자격증 준비',
-            '전역 후 전공 심화 및 취업 활동 집중',
-            '복학 시기를 고려하여 전역 시점 조정',
-          ],
-        };
-      }
-    }
+  // 군대 시기 추천 (남성이고 '미정'인 경우)
+  if (userData.gender === '남성' && userData.militaryStatus === '미정') {
+    recommendations.militaryTiming = getMilitaryRecommendation(userData.grade, userData.careerPath);
   }
 
   return recommendations;

@@ -8,60 +8,90 @@ interface InterestAreaFormProps {
 }
 
 export function InterestAreaForm({ userData, setUserData, onNext, onBack }: InterestAreaFormProps) {
-  const interestAreas = [
-    { value: '데이터', icon: '📊', color: 'bg-purple-100 border-purple-300 hover:border-purple-500' },
-    { value: '금융', icon: '💰', color: 'bg-green-100 border-green-300 hover:border-green-500' },
-    { value: '물류', icon: '📦', color: 'bg-orange-100 border-orange-300 hover:border-orange-500' },
-    { value: '품질', icon: '✓', color: 'bg-blue-100 border-blue-300 hover:border-blue-500' },
-    { value: '전략 컨설팅', icon: '💡', color: 'bg-yellow-100 border-yellow-300 hover:border-yellow-500' },
-    { value: 'SCM', icon: '🔗', color: 'bg-indigo-100 border-indigo-300 hover:border-indigo-500' },
-    { value: '기획', icon: '📋', color: 'bg-pink-100 border-pink-300 hover:border-pink-500' },
-    { value: '마케팅', icon: '📢', color: 'bg-red-100 border-red-300 hover:border-red-500' },
-  ];
+  const interestAreas = ['데이터', '금융', '물류', '품질', '전략 컨설팅', 'SCM', '기획', '마케팅'];
+
+  const handleToggle = (area: string) => {
+    const currentAreas = [...userData.interestArea];
+    const index = currentAreas.indexOf(area);
+
+    if (index > -1) {
+      // 이미 선택된 경우 제거
+      currentAreas.splice(index, 1);
+    } else {
+      // 최대 3개까지만 선택 가능
+      if (currentAreas.length < 3) {
+        currentAreas.push(area);
+      } else {
+        alert('최대 3개까지만 선택 가능합니다.');
+        return;
+      }
+    }
+
+    setUserData({ ...userData, interestArea: currentAreas });
+  };
+
+  const getOrderNumber = (area: string) => {
+    const index = userData.interestArea.indexOf(area);
+    return index > -1 ? index + 1 : null;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (userData.interestArea) {
+    if (userData.interestArea.length > 0) {
       onNext();
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-2 gap-4">
-        {interestAreas.map((area) => (
-          <button
-            key={area.value}
-            type="button"
-            onClick={() => setUserData({ ...userData, interestArea: area.value })}
-            className={`p-4 rounded-xl border-2 transition ${
-              userData.interestArea === area.value
-                ? 'ring-2 ring-blue-500 scale-105'
-                : ''
-            } ${area.color}`}
-          >
-            <div className="text-3xl mb-2">{area.icon}</div>
-            <div className={userData.interestArea === area.value ? 'text-blue-700' : 'text-gray-700'}>
-              {area.value}
-            </div>
-          </button>
-        ))}
+      <div>
+        <p className="text-gray-600 mb-4 text-sm">
+          관심 있는 분야를 최대 3개까지 선택해주세요. (순서대로 우선순위가 반영됩니다)
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          {interestAreas.map((area) => {
+            const orderNumber = getOrderNumber(area);
+            const isSelected = orderNumber !== null;
+
+            return (
+              <button
+                key={area}
+                type="button"
+                onClick={() => handleToggle(area)}
+                className={`py-4 px-4 rounded-lg border-2 transition relative ${
+                  isSelected
+                    ? 'border-blue-600 bg-blue-50 text-blue-700'
+                    : 'border-gray-300 hover:border-blue-300'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span>{area}</span>
+                  {isSelected && (
+                    <span className="bg-blue-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold ml-2">
+                      {orderNumber}
+                    </span>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      <div className="flex gap-3 pt-4">
+      <div className="flex gap-3">
         <button
           type="button"
           onClick={onBack}
-          className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition"
+          className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition"
         >
           이전
         </button>
         <button
           type="submit"
-          disabled={!userData.interestArea}
+          disabled={userData.interestArea.length === 0}
           className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
-          결과 보기
+          다음
         </button>
       </div>
     </form>
