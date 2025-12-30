@@ -75,7 +75,7 @@ export function CompletedCoursesForm({ userData, setUserData, onNext, onBack }: 
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-gray-900 mb-2">들은 수업을 ��크해주세요</h3>
+        <h3 className="text-gray-900 mb-2">들은 수업을 체크해주세요</h3>
         <p className="text-sm text-gray-600">
           {userData.grade} {userData.semester} 이전에 수강한 과목을 모두 선택해주세요.
         </p>

@@ -81,7 +81,7 @@ function calculateCourseScore(courseName: string, interestAreas: string[]): numb
 const certificationsMap: Record<string, string[]> = {
   '데이터': ['데이터분석 준전문가(ADsP)', '데이터분석 전문가(ADP)', 'SQL 개발자(SQLD)', '빅데이터분석기사', 'Python 데이터 분석 자격증'],
   '금융': ['재무분석사(CFA)', '금융투자분석사', 'FRM', '증권투자권유자문인력', 'Excel 전문가(MOS)'],
-  '물류': ['물류관리사', '유통관리사', '��제물류사', 'CPIM (생산재고관리)', '화물운송종사자격증'],
+  '물류': ['물류관리사', '유통관리사', '국제물류사', 'CPIM (생산재고관리)', '화물운송종사자격증'],
   '품질': ['품질경영기사', '6시그마 GB/BB', '신뢰성기사', 'ISO 9001 심사원', 'Minitab 자격증'],
   '전략 컨설팅': ['경영지도사', 'PMP', 'CISA', 'CPA', 'Excel 전문가(MOS)'],
   'SCM': ['물류관리사', 'CPIM', 'CSCP', 'ERP 정보관리사', 'SAP 자격증'],

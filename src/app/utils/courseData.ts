@@ -17,7 +17,7 @@ export const allCourses: Course[] = [
   { name: '말과글', courseCode: 'CUL0005', category: '교양필수', credits: '3.00-3.00', semester: '1-1', lectureHours: 3, labHours: 0, description: '의사소통 능력 향상' },
   { name: '미분적분학1', courseCode: 'GEN2052', category: '전공기초(필수)', credits: '3.00-3.00', semester: '1-1', lectureHours: 3, labHours: 0, description: '미분과 적분의 기초 개념' },
   { name: '사랑의실천1(한양나눔)', courseCode: 'SYH0001', category: '교양필수', credits: '2.00-2.00', semester: '1-1', lectureHours: 2, labHours: 0, description: '봉사와 나눔의 실천' },
-  { name: '��반물리학및실험1', courseCode: 'CUL3011', category: '전공기초(필수)', credits: '4.00-5.00', semester: '1-1', lectureHours: 3, labHours: 2, description: '물리학의 기본 원리와 실험' },
+  { name: '일반물리학및실험1', courseCode: 'CUL3011', category: '전공기초(필수)', credits: '4.00-5.00', semester: '1-1', lectureHours: 3, labHours: 2, description: '물리학의 기본 원리와 실험' },
   { name: '일반화학및실험1', courseCode: 'CHM1005', category: '전공기초(필수)', credits: '4.00-5.00', semester: '1-1', lectureHours: 3, labHours: 2, description: '화학의 기본 원리와 실험' },
   { name: '커리어개발Ⅰ:취.창업진로로드맵', courseCode: 'GEN5029', category: '교양필수', credits: '1.00-1.00', semester: '1-1', lectureHours: 1, labHours: 0, description: '진로 설계와 탐색' },
 
