@@ -11,8 +11,6 @@ interface CompletedCoursesFormProps {
 
 export function CompletedCoursesForm({ userData, setUserData, onNext, onBack }: CompletedCoursesFormProps) {
   const [selectedCourses, setSelectedCourses] = useState<string[]>(userData.completedCourses || []);
-  const [missingRequired, setMissingRequired] = useState<string[]>([]);
-  const [showWarning, setShowWarning] = useState(false);
 
   // 현재 학년-학기 이전의 과목들 필터링
   const currentGrade = parseInt(userData.grade.replace('학년', ''));
@@ -33,31 +31,11 @@ export function CompletedCoursesForm({ userData, setUserData, onNext, onBack }: 
         return [...prev, courseCode];
       }
     });
-    setShowWarning(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // 필수 과목 중 안 들은 것 체크
-    const requiredCourses = previousCourses.filter(
-      course => course.category === '교양필수' || course.category === '전공기초(필수)' || course.category === '전공핵심'
-    );
-    
-    const missing = requiredCourses.filter(
-      course => !selectedCourses.includes(course.courseCode)
-    ).map(course => course.name);
-
-    if (missing.length > 0) {
-      setMissingRequired(missing);
-      setShowWarning(true);
-    } else {
-      setUserData({ ...userData, completedCourses: selectedCourses });
-      onNext();
-    }
-  };
-
-  const handleContinueAnyway = () => {
+    // 경고 없이 바로 다음으로 진행
     setUserData({ ...userData, completedCourses: selectedCourses });
     onNext();
   };
@@ -81,37 +59,6 @@ export function CompletedCoursesForm({ userData, setUserData, onNext, onBack }: 
         </p>
       </div>
 
-      {/* 필수 과목 미이수 경고 */}
-      {showWarning && missingRequired.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="flex items-start gap-2">
-            <span className="text-red-600 text-xl">⚠️</span>
-            <div className="flex-1">
-              <h4 className="text-red-900 mb-2">듣지 않은 필수 수업이 있어요!</h4>
-              <p className="text-sm text-red-800 mb-2">
-                다음 필수 과목을 아직 이수하지 않으셨습니다. 졸업을 위해서는 반드시 이수해야 합니다.
-              </p>
-              <div className="bg-white rounded p-3 mb-3">
-                <ul className="space-y-1 text-sm text-red-900">
-                  {missingRequired.map((courseName, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <span>•</span>
-                      <span>{courseName}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <button
-                onClick={handleContinueAnyway}
-                className="text-sm text-red-700 underline hover:text-red-900"
-              >
-                그래도 계속하기
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* 학기별 과목 리스트 */}
         <div className="max-h-[500px] overflow-y-auto border border-gray-200 rounded-lg p-4">
@@ -132,8 +79,7 @@ export function CompletedCoursesForm({ userData, setUserData, onNext, onBack }: 
                 <div className="space-y-2">
                   {courses.map((course) => {
                     const isRequired = course.category === '교양필수' || 
-                                     course.category === '전공기초(필수)' || 
-                                     course.category === '전공핵심';
+                                     course.category === '전공기초(필수)';
                     const isSelected = selectedCourses.includes(course.courseCode);
 
                     return (

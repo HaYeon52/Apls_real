@@ -23,6 +23,7 @@ interface Recommendations {
   completedMajorCredits: number;
   recommendedMajorCredits: number;
   totalMajorCredits: number;
+  missingRequiredCourses: Course[];
 }
 
 // 관심 분야별 과목 연관도 (각 과목이 해당 분야와 얼마나 관련있는지)
@@ -248,6 +249,7 @@ export function getRecommendations(userData: UserData): Recommendations {
     completedMajorCredits: 0,
     recommendedMajorCredits: 0,
     totalMajorCredits: 0,
+    missingRequiredCourses: [],
   };
 
   // 현재 학년-학기 숫자
@@ -385,6 +387,11 @@ export function getRecommendations(userData: UserData): Recommendations {
   if (userData.gender === '남성' && userData.militaryStatus === '미정') {
     recommendations.militaryTiming = getMilitaryRecommendation(userData.grade, userData.careerPath);
   }
+
+  // 필수 과목 확인
+  const requiredCourses = allCourses.filter(course => course.category.includes('필수'));
+  const missingRequiredCourses = requiredCourses.filter(course => !userData.completedCourses.includes(course.courseCode));
+  recommendations.missingRequiredCourses = missingRequiredCourses;
 
   return recommendations;
 }

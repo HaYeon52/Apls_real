@@ -34,11 +34,21 @@ export default function App() {
   });
 
   const handleNext = () => {
-    setStep(step + 1);
+    // 1학년 1학기면 step 2(들은 수업)를 건너뛰고 step 3으로
+    if (step === 1 && userData.grade === '1학년' && userData.semester === '1학기') {
+      setStep(3);
+    } else {
+      setStep(step + 1);
+    }
   };
 
   const handleBack = () => {
-    setStep(step - 1);
+    // step 3에서 뒤로 갈 때, 1학년 1학기면 step 1로
+    if (step === 3 && userData.grade === '1학년' && userData.semester === '1학기') {
+      setStep(1);
+    } else {
+      setStep(step - 1);
+    }
   };
 
   const handleReset = () => {
