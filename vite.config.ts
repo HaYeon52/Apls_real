@@ -4,8 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  // 👇 이 줄이 추가되었습니다! (집 주소를 알려주는 코드)
-  base: "/Apls_real/",
+  // base 경로 제거 - Vercel에서는 루트 경로 사용
   
   plugins: [
     // The React and Tailwind plugins are both required for Make, even if
