@@ -43,7 +43,6 @@ export const allCourses: Course[] = [
   { name: '경영과학과운영연구1', courseCode: 'INE3079', category: '전공핵심', credits: '3.00-3.00', semester: '3-1', lectureHours: 3, labHours: 0, description: '선형계획법 및 최적화 기법' },
   { name: '기계학습과데이터마이닝', courseCode: 'INE5008', category: '전공핵심', credits: '3.00-3.00', semester: '3-1', lectureHours: 3, labHours: 0, description: '머신러닝 알고리즘과 데이터 분석' },
   { name: '물류관리', courseCode: 'INE4023', category: '전공핵심', credits: '3.00-3.00', semester: '3-1', lectureHours: 3, labHours: 0, description: '물류 시스템 설계 및 관리' },
-  { name: '산업공학Hy-Up(실용연구실습)1', courseCode: 'HYP1010', category: '전공심화', credits: '1.00-1.00', semester: '3-1', lectureHours: 0, labHours: 1, description: '실무 프로젝트 연구' },
   { name: '시계열분석및예측', courseCode: 'INE3098', category: '전공핵심', credits: '3.00-3.00', semester: '3-1', lectureHours: 3, labHours: 0, description: '시간에 따른 데이터 분석 및 예측' },
   { name: '운용관리', courseCode: 'INE3081', category: '전공핵심', credits: '3.00-3.00', semester: '3-1', lectureHours: 3, labHours: 0, description: '생산운영관리의 기초' },
   { name: '품질경영', courseCode: 'BUS3021', category: '전공핵심', credits: '3.00-3.00', semester: '3-1', lectureHours: 3, labHours: 0, description: '품질관리 및 개선 기법' },
@@ -53,7 +52,6 @@ export const allCourses: Course[] = [
   { name: '경영전략및데이터베이스', courseCode: 'INE2016', category: '전공심화', credits: '3.00-3.00', semester: '3-2', lectureHours: 3, labHours: 0, description: '경영 전략과 데이터베이스 시스템' },
   { name: '공급사슬경영(Scm)', courseCode: 'INE1008', category: '전공심화', credits: '3.00-4.00', semester: '3-2', lectureHours: 2, labHours: 2, description: '공급망 전략 및 최적화' },
   { name: '금융공학개론', courseCode: 'INE3083', category: '전공심화', credits: '3.00-3.00', semester: '3-2', lectureHours: 3, labHours: 0, description: '금융상품 및 리스크 관리' },
-  { name: '산업공학Hy-Up(실용연구실습)2', courseCode: 'HYP2008', category: '전공심화', credits: '1.00-1.00', semester: '3-2', lectureHours: 0, labHours: 1, description: '실무 프로젝트 연구' },
   { name: '신뢰성및보전공학', courseCode: 'INE4044', category: '전공심화', credits: '3.00-3.00', semester: '3-2', lectureHours: 3, labHours: 0, description: '시스템 신뢰성 분석' },
   { name: '실험계획법', courseCode: 'INE4004', category: '전공핵심', credits: '3.00-3.00', semester: '3-2', lectureHours: 3, labHours: 0, description: '효율적 실험 설계 및 분석' },
 
@@ -62,11 +60,9 @@ export const allCourses: Course[] = [
 
   // 4학년 1학기
   { name: '네트워크및재고전략', courseCode: 'INE3082', category: '전공심화', credits: '3.00-3.00', semester: '4-1', lectureHours: 3, labHours: 0, description: '네트워크 최적화 및 재고 관리' },
-  { name: '산업공학Hy-Up(실용연구실습)3', courseCode: 'HYP3009', category: '전공심화', credits: '1.00-1.00', semester: '4-1', lectureHours: 0, labHours: 1, description: '실무 프로젝트 연구' },
   { name: '산업공학종합설계1', courseCode: 'INE4089', category: '전공심화', credits: '3.00-3.00', semester: '4-1', lectureHours: 0, labHours: 3, description: '산업공학 캡스톤 프로젝트 1' },
   { name: '스마트제조데이터분석', courseCode: 'INE4115', category: '전공심화', credits: '3.00-3.00', semester: '4-1', lectureHours: 3, labHours: 0, description: '스마트 제조 환경의 데이터 분석' },
 
   // 4학년 2학기
-  { name: '산업공학Hy-Up(실용연구실습)4', courseCode: 'HYP4009', category: '전공심화', credits: '1.00-1.00', semester: '4-2', lectureHours: 0, labHours: 1, description: '실무 프로젝트 연구' },
   { name: '산업공학종합설계2', courseCode: 'INE4090', category: '전공심화', credits: '3.00-3.00', semester: '4-2', lectureHours: 0, labHours: 3, description: '산업공학 캡스톤 프로젝트 2' },
 ];

@@ -8,7 +8,7 @@ interface InterestAreaFormProps {
 }
 
 export function InterestAreaForm({ userData, setUserData, onNext, onBack }: InterestAreaFormProps) {
-  const interestAreas = ['데이터', '금융', '물류', '품질', '전략 컨설팅', 'SCM', '기획', '마케팅'];
+  const interestAreas = ['공정 (생산, 품질)', '물류/SCM', '데이터', '금융', '컨설팅/기획'];
 
   const handleToggle = (area: string) => {
     const currentAreas = [...userData.interestArea];

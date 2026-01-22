@@ -7,24 +7,10 @@ interface PersonalInfoFormProps {
 }
 
 export function PersonalInfoForm({ userData, setUserData, onNext }: PersonalInfoFormProps) {
-  const birthYears = Array.from({ length: 16 }, (_, i) => (2010 - i).toString());
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // 남성이고 입대 예정을 선택한 경우 날짜 입력 필수
-    if (userData.gender === '남성') {
-      if (!userData.militaryStatus) {
-        alert('병역 상태를 선택해주세요.');
-        return;
-      }
-      if (userData.militaryStatus === '입대 예정' && !userData.enlistmentDate) {
-        alert('입대 예정일을 입력해주세요.');
-        return;
-      }
-    }
-    
-    if (userData.name && userData.birthYear && userData.gender && userData.grade && userData.semester) {
+    if (userData.name && userData.studentId && userData.age && userData.gender && userData.grade && userData.semester) {
       onNext();
     }
   };
@@ -44,20 +30,35 @@ export function PersonalInfoForm({ userData, setUserData, onNext }: PersonalInfo
       </div>
 
       <div>
-        <label className="block text-gray-700 mb-2">출생년도</label>
-        <select
-          value={userData.birthYear}
-          onChange={(e) => setUserData({ ...userData, birthYear: e.target.value })}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-white"
+        <label className="block text-gray-700 mb-2">학번</label>
+        <input
+          type="text"
+          value={userData.studentId}
+          onChange={(e) => setUserData({ ...userData, studentId: e.target.value })}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+          placeholder="학번을 입력하세요 (예: 2021012345)"
           required
-        >
-          <option value="">출생년도를 선택하세요</option>
-          {birthYears.map((year) => (
-            <option key={year} value={year}>
-              {year}년
-            </option>
-          ))}
-        </select>
+        />
+      </div>
+
+      <div>
+        <label className="block text-gray-700 mb-2">출생년도</label>
+        <input
+          type="number"
+          value={userData.age}
+          onChange={(e) => setUserData({ ...userData, age: e.target.value })}
+          onWheel={(e) => e.currentTarget.blur()}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+          placeholder="출생년도를 입력하세요 (예: 2000)"
+          min="1995"
+          max="2010"
+          required
+        />
+        {userData.age && parseInt(userData.age) >= 1995 && parseInt(userData.age) <= 2010 && (
+          <p className="text-sm text-gray-600 mt-1">
+            만 {2026 - parseInt(userData.age)}세
+          </p>
+        )}
       </div>
 
       <div>
@@ -65,7 +66,7 @@ export function PersonalInfoForm({ userData, setUserData, onNext }: PersonalInfo
         <div className="grid grid-cols-2 gap-4">
           <button
             type="button"
-            onClick={() => setUserData({ ...userData, gender: '남성', militaryStatus: '', enlistmentDate: '' })}
+            onClick={() => setUserData({ ...userData, gender: '남성', militaryCompleted: false })}
             className={`py-3 px-6 rounded-lg border-2 transition ${
               userData.gender === '남성'
                 ? 'border-blue-600 bg-blue-50 text-blue-700'
@@ -76,7 +77,7 @@ export function PersonalInfoForm({ userData, setUserData, onNext }: PersonalInfo
           </button>
           <button
             type="button"
-            onClick={() => setUserData({ ...userData, gender: '여성', militaryStatus: '', enlistmentDate: '' })}
+            onClick={() => setUserData({ ...userData, gender: '여성', militaryCompleted: false })}
             className={`py-3 px-6 rounded-lg border-2 transition ${
               userData.gender === '여성'
                 ? 'border-blue-600 bg-blue-50 text-blue-700'
@@ -88,64 +89,39 @@ export function PersonalInfoForm({ userData, setUserData, onNext }: PersonalInfo
         </div>
       </div>
 
-      {/* 남성 선택 시 병역 상태 질문 */}
+      {/* 남성 선택 시 군필 여부 질문 */}
       {userData.gender === '남성' && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <label className="block text-gray-700 mb-3">현재 병역 상태를 알려주세요.</label>
-          <div className="space-y-2">
+          <label className="block text-gray-700 mb-3">군 복무를 완료하셨나요?</label>
+          <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => setUserData({ ...userData, militaryStatus: '해당 없음', enlistmentDate: '' })}
-              className={`w-full py-3 px-4 rounded-lg border-2 transition text-left ${
-                userData.militaryStatus === '해당 없음'
+              onClick={() => setUserData({ ...userData, militaryCompleted: true })}
+              className={`py-3 px-4 rounded-lg border-2 transition ${
+                userData.militaryCompleted
                   ? 'border-blue-600 bg-white text-blue-700'
                   : 'border-gray-300 bg-white hover:border-blue-300'
               }`}
             >
-              해당 없음 (면제 및 복무 완료)
+              예 (군필)
             </button>
             <button
               type="button"
-              onClick={() => setUserData({ ...userData, militaryStatus: '입대 예정' })}
-              className={`w-full py-3 px-4 rounded-lg border-2 transition text-left ${
-                userData.militaryStatus === '입대 예정'
+              onClick={() => setUserData({ ...userData, militaryCompleted: false })}
+              className={`py-3 px-4 rounded-lg border-2 transition ${
+                !userData.militaryCompleted
                   ? 'border-blue-600 bg-white text-blue-700'
                   : 'border-gray-300 bg-white hover:border-blue-300'
               }`}
             >
-              입대 예정
-            </button>
-            <button
-              type="button"
-              onClick={() => setUserData({ ...userData, militaryStatus: '미정', enlistmentDate: '' })}
-              className={`w-full py-3 px-4 rounded-lg border-2 transition text-left ${
-                userData.militaryStatus === '미정'
-                  ? 'border-blue-600 bg-white text-blue-700'
-                  : 'border-gray-300 bg-white hover:border-blue-300'
-              }`}
-            >
-              미정 (아직 계획이 없어요)
+              아니오 (미필)
             </button>
           </div>
-
-          {/* 입대 예정 선택 시 년도/월 입력 */}
-          {userData.militaryStatus === '입대 예정' && (
-            <div className="mt-4">
-              <label className="block text-gray-700 mb-2">입대 예정일 (년도/월)</label>
-              <input
-                type="month"
-                value={userData.enlistmentDate}
-                onChange={(e) => setUserData({ ...userData, enlistmentDate: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                required
-              />
-            </div>
-          )}
         </div>
       )}
 
       <div>
-        <label className="block text-gray-700 mb-2">다음 학기</label>
+        <label className="block text-gray-700 mb-2">다음 학기는 몇 학년인가요?</label>
         <div className="grid grid-cols-2 gap-3">
           {['1학년', '2학년', '3학년', '4학년'].map((grade) => (
             <button
@@ -165,7 +141,7 @@ export function PersonalInfoForm({ userData, setUserData, onNext }: PersonalInfo
       </div>
 
       <div>
-        <label className="block text-gray-700 mb-2">학기</label>
+        <label className="block text-gray-700 mb-2">몇 학기인가요?</label>
         <div className="grid grid-cols-2 gap-3">
           {['1학기', '2학기'].map((semester) => (
             <button
@@ -186,7 +162,7 @@ export function PersonalInfoForm({ userData, setUserData, onNext }: PersonalInfo
 
       <button
         type="submit"
-        disabled={!userData.name || !userData.birthYear || !userData.gender || !userData.grade || !userData.semester || (userData.gender === '남성' && !userData.militaryStatus)}
+        disabled={!userData.name || !userData.studentId || !userData.age || !userData.gender || !userData.grade || !userData.semester}
         className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
       >
         다음

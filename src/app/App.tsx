@@ -1,154 +1,208 @@
-import { useState } from "react";
-import { PersonalInfoForm } from "./components/PersonalInfoForm";
-import { CompletedCoursesForm } from "./components/CompletedCoursesForm";
-import { CareerPathForm } from "./components/CareerPathForm";
-import { InterestAreaForm } from "./components/InterestAreaForm";
-import { RecommendationResult } from "./components/RecommendationResult";
+import { useState, useEffect } from "react";
+import { StartScreen } from "./components/StartScreen";
+import { PersonalInfoStep } from "./components/PersonalInfoStep";
+import { AcademicInfoStep } from "./components/AcademicInfoStep";
+import { CourseSelectionStep } from "./components/CourseSelectionStep";
+import { CareerPathStep } from "./components/CareerPathStep";
+import { InterestAreaStep } from "./components/InterestAreaStep";
+import { ResultScreen } from "./components/ResultScreen";
+import { CourseDetailPage } from "./components/CourseDetailPage";
+import { AdminDashboard } from "./components/AdminDashboard";
 
 export interface UserData {
   name: string;
-  birthYear: string;
+  studentId: string;
+  age: string;
   gender: "남성" | "여성" | "";
+  militaryStatus: "군필(면제 포함)" | "미필" | "";
+  howDidYouKnow: string;
+  howDidYouKnowOther: string;
   grade: string;
   semester: string;
-  militaryStatus: string;
-  enlistmentDate: string;
+  militaryCompleted: boolean;
   careerPath: string[];
   interestArea: string[];
   completedCourses: string[];
 }
 
+interface SelectedCourse {
+  name: string;
+  category: string;
+  credits: string;
+  description: string;
+}
+
 export default function App() {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<SelectedCourse | null>(null);
   const [userData, setUserData] = useState<UserData>({
     name: "",
-    birthYear: "",
+    studentId: "",
+    age: "",
     gender: "",
+    militaryStatus: "",
+    howDidYouKnow: "",
+    howDidYouKnowOther: "",
     grade: "",
     semester: "",
-    militaryStatus: "",
-    enlistmentDate: "",
+    militaryCompleted: false,
     careerPath: [],
     interestArea: [],
     completedCourses: [],
   });
 
+  // Google Analytics 초기화
+  useEffect(() => {
+    // gtag.js 스크립트 로드
+    const script1 = document.createElement('script');
+    script1.async = true;
+    script1.src = 'https://www.googletagmanager.com/gtag/js?id=G-PZY542N5YW';
+    document.head.appendChild(script1);
+
+    // gtag 함수 초기화
+    const script2 = document.createElement('script');
+    script2.innerHTML = `
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-PZY542N5YW');
+    `;
+    document.head.appendChild(script2);
+
+    console.log('✅ Google Analytics 초기화 완료 (G-PZY542N5YW)');
+
+    // 클린업
+    return () => {
+      document.head.removeChild(script1);
+      document.head.removeChild(script2);
+    };
+  }, []);
+
   const handleNext = () => {
-    // 1학년 1학기면 step 2(들은 수업)를 건너뛰고 step 3으로
-    if (step === 1 && userData.grade === '1학년' && userData.semester === '1학기') {
-      setStep(3);
+    // 1학년 1학기면 step 3(들은 수업)를 건너뛰고 step 4로
+    if (step === 2 && userData.grade === '1학년' && userData.semester === '1학기') {
+      setStep(4);
     } else {
       setStep(step + 1);
     }
   };
 
   const handleBack = () => {
-    // step 3에서 뒤로 갈 때, 1학년 1학기면 step 1로
-    if (step === 3 && userData.grade === '1학년' && userData.semester === '1학기') {
-      setStep(1);
+    // 1학년 1학기가 step 4로 건너뛴 경우, 뒤로 갈 때 step 2로
+    if (step === 4 && userData.grade === '1학년' && userData.semester === '1학기') {
+      setStep(2);
     } else {
       setStep(step - 1);
     }
   };
 
-  const handleReset = () => {
-    setStep(1);
+  const handleRestart = () => {
+    setStep(0);
+    setSelectedCourse(null);
     setUserData({
       name: "",
-      birthYear: "",
+      studentId: "",
+      age: "",
       gender: "",
+      militaryStatus: "",
+      howDidYouKnow: "",
+      howDidYouKnowOther: "",
       grade: "",
       semester: "",
-      militaryStatus: "",
-      enlistmentDate: "",
+      militaryCompleted: false,
       careerPath: [],
       interestArea: [],
       completedCourses: [],
     });
   };
 
+  const handleCourseClick = (course: SelectedCourse) => {
+    setSelectedCourse(course);
+  };
+
+  const handleBackToCourseList = () => {
+    setSelectedCourse(null);
+  };
+
+  // 관리자 대시보드 표시 중
+  if (showAdmin) {
+    return <AdminDashboard onBack={() => setShowAdmin(false)} />;
+  }
+
+  // 과목 상세 페이지 표시 중
+  if (selectedCourse) {
+    return (
+      <CourseDetailPage
+        courseName={selectedCourse.name}
+        courseCategory={selectedCourse.category}
+        courseCredits={selectedCourse.credits}
+        courseDescription={selectedCourse.description}
+        onBack={handleBackToCourseList}
+      />
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-blue-900 mb-2">
-            All Lecture Planning System
-          </h1>
-          <h2 className="text-blue-700 mb-4">
-            진로 맞춤 추천 시스템
-          </h2>
-          <div className="flex justify-center gap-2 mb-6">
-            {[1, 2, 3, 4, 5].map((num) => (
-              <div
-                key={num}
-                className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-                  step === num
-                    ? "bg-blue-600 text-white scale-110"
-                    : step > num
-                      ? "bg-blue-400 text-white"
-                      : "bg-white text-gray-400"
-                }`}
-              >
-                {num}
-              </div>
-            ))}
-          </div>
-          <p className="text-gray-600">
-            {step === 1 && "인적사항을 입력해주세요"}
-            {step === 2 && "들은 수업을 체크해주세요"}
-            {step === 3 && "진로 방향을 선택해주세요"}
-            {step === 4 && "관심 분야를 선택해주세요"}
-            {step === 5 && "맞춤형 추천 결과"}
-          </p>
-        </div>
+    <>
+      {step === 0 && (
+        <StartScreen 
+          onStart={() => setStep(1)} 
+          onAdminClick={() => setShowAdmin(true)}
+        />
+      )}
+      
+      {step === 1 && (
+        <PersonalInfoStep
+          userData={userData}
+          setUserData={setUserData}
+          onNext={handleNext}
+        />
+      )}
 
-        {/* Content */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          {step === 1 && (
-            <PersonalInfoForm
-              userData={userData}
-              setUserData={setUserData}
-              onNext={handleNext}
-            />
-          )}
-          {step === 2 && (
-            <CompletedCoursesForm
-              userData={userData}
-              setUserData={setUserData}
-              onNext={handleNext}
-              onBack={handleBack}
-            />
-          )}
-          {step === 3 && (
-            <CareerPathForm
-              userData={userData}
-              setUserData={setUserData}
-              onNext={handleNext}
-              onBack={handleBack}
-            />
-          )}
-          {step === 4 && (
-            <InterestAreaForm
-              userData={userData}
-              setUserData={setUserData}
-              onNext={handleNext}
-              onBack={handleBack}
-            />
-          )}
-          {step === 5 && (
-            <RecommendationResult
-              userData={userData}
-              onReset={handleReset}
-            />
-          )}
-        </div>
+      {step === 2 && (
+        <AcademicInfoStep
+          userData={userData}
+          setUserData={setUserData}
+          onNext={handleNext}
+          onBack={handleBack}
+        />
+      )}
 
-        {/* Footer */}
-        <div className="text-center mt-6 text-gray-600">
-          <p>© 2025 한양대학교 산업공학과</p>
-        </div>
-      </div>
-    </div>
+      {step === 3 && (
+        <CourseSelectionStep
+          userData={userData}
+          setUserData={setUserData}
+          onNext={handleNext}
+          onBack={handleBack}
+        />
+      )}
+
+      {step === 4 && (
+        <CareerPathStep
+          userData={userData}
+          setUserData={setUserData}
+          onNext={handleNext}
+          onBack={handleBack}
+        />
+      )}
+
+      {step === 5 && (
+        <InterestAreaStep
+          userData={userData}
+          setUserData={setUserData}
+          onNext={handleNext}
+          onBack={handleBack}
+        />
+      )}
+
+      {step === 6 && (
+        <ResultScreen
+          userData={userData}
+          onCourseClick={handleCourseClick}
+          onRestart={handleRestart}
+        />
+      )}
+    </>
   );
 }

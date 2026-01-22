@@ -75,7 +75,7 @@ export function CompletedCoursesForm({ userData, setUserData, onNext, onBack }: 
             })
             .map(([semester, courses]) => (
               <div key={semester} className="mb-6 last:mb-0">
-                <h4 className="text-blue-900 mb-3 sticky top-0 bg-white py-2">{semester}</h4>
+                <h4 className="text-blue-900 mb-3 bg-white py-2">{semester}</h4>
                 <div className="space-y-2">
                   {courses.map((course) => {
                     const isRequired = course.category === '교양필수' || 
