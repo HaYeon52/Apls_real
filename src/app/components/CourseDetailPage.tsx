@@ -1,5 +1,6 @@
 import { getCourseSyllabus, getCourseTips } from "../utils/courseTips";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Lock } from "lucide-react";
+import { useState } from "react";
 
 interface CourseDetailPageProps {
   courseName: string;
@@ -18,6 +19,12 @@ export function CourseDetailPage({
 }: CourseDetailPageProps) {
   const syllabus = getCourseSyllabus(courseName);
   const tips = getCourseTips(courseName);
+  const [isPurchased, setIsPurchased] = useState(false);
+
+  const handlePurchase = () => {
+    // 구매 처리 로직 (실제로는 결제 시스템 연동)
+    setIsPurchased(true);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-50 p-4">
@@ -54,7 +61,7 @@ export function CourseDetailPage({
         </div>
 
         {/* 교수님의 코멘트 */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm relative">
           <div className="flex items-start gap-4 mb-4">
             <div className="flex-shrink-0">
               <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-4xl">
@@ -73,7 +80,7 @@ export function CourseDetailPage({
             <div className="absolute -top-3 left-12 w-6 h-6 bg-blue-50 border-l-2 border-t-2 border-blue-200 transform rotate-45"></div>
             
             <div
-              className="prose prose-sm max-w-none"
+              className={`prose prose-sm max-w-none transition-all duration-300 ${!isPurchased ? 'blur-md select-none' : ''}`}
               style={{
                 whiteSpace: "pre-line",
                 lineHeight: "1.8",
@@ -164,16 +171,32 @@ export function CourseDetailPage({
                 })}
               </div>
             </div>
+
+            {/* 블러 오버레이 */}
+            {!isPurchased && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/10 backdrop-blur-[2px] rounded-2xl">
+                <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl p-8 text-center max-w-sm mx-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Lock className="w-8 h-8 text-white" />
+                  </div>
+                  <h4 className="text-gray-900 font-bold text-xl mb-2">잠금 해제하기</h4>
+                  <p className="text-gray-600 text-sm mb-4">
+                    교수님의 코멘트를 확인하려면<br />
+                    구매가 필요합니다
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         {/* 선배의 꿀팁 */}
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 relative">
           <h3 className="text-amber-900 font-bold text-xl mb-4 flex items-center gap-2">
             <span>💡</span>
             <span>선배의 꿀팁</span>
           </h3>
-          <ul className="space-y-3">
+          <ul className={`space-y-3 transition-all duration-300 ${!isPurchased ? 'blur-md select-none' : ''}`}>
             {tips.map((tip, idx) => (
               <li
                 key={idx}
@@ -186,15 +209,43 @@ export function CourseDetailPage({
               </li>
             ))}
           </ul>
+
+          {/* 블러 오버레이 */}
+          {!isPurchased && (
+            <div className="absolute inset-0 flex items-center justify-center bg-amber-50/10 backdrop-blur-[2px] rounded-xl">
+              <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl p-8 text-center max-w-sm mx-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Lock className="w-8 h-8 text-white" />
+                </div>
+                <h4 className="text-gray-900 font-bold text-xl mb-2">잠금 해제하기</h4>
+                <p className="text-gray-600 text-sm mb-4">
+                  선배의 꿀팁을 확인하려면<br />
+                  구매가 필요합니다
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* 하단 뒤로가기 버튼 */}
-        <button
-          onClick={onBack}
-          className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium"
-        >
-          추천 결과로 돌아가기
-        </button>
+        {/* 구매 버튼 */}
+        {!isPurchased && (
+          <button
+            onClick={handlePurchase}
+            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium"
+          >
+            구매하기
+          </button>
+        )}
+
+        {/* 구매 완료 후 버튼 */}
+        {isPurchased && (
+          <button
+            onClick={onBack}
+            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium"
+          >
+            추천 결과로 돌아가기
+          </button>
+        )}
       </div>
     </div>
   );
