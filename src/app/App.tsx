@@ -9,6 +9,14 @@ import { ResultScreen } from "./components/ResultScreen";
 import { CourseDetailPage } from "./components/CourseDetailPage";
 import { AdminDashboard } from "./components/AdminDashboard";
 
+// 1. GA4 타입 에러 방지용 (빨간줄 해결)
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+}
+
 export interface UserData {
   name: string;
   studentId: string;
@@ -52,32 +60,40 @@ export default function App() {
     completedCourses: [],
   });
 
-  // Google Analytics 초기화
+  // 2. Google Analytics 초기화 (중복 실행 방지 기능 추가)
   useEffect(() => {
-    // gtag.js 스크립트 로드
-    const script1 = document.createElement('script');
-    script1.async = true;
-    script1.src = 'https://www.googletagmanager.com/gtag/js?id=G-PZY542N5YW';
-    document.head.appendChild(script1);
+    if (!window.gtag) {
+      const script1 = document.createElement('script');
+      script1.async = true;
+      script1.src = 'https://www.googletagmanager.com/gtag/js?id=G-PZY542N5YW';
+      document.head.appendChild(script1);
 
-    // gtag 함수 초기화
-    const script2 = document.createElement('script');
-    script2.innerHTML = `
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-PZY542N5YW');
-    `;
-    document.head.appendChild(script2);
-
-    console.log('✅ Google Analytics 초기화 완료 (G-PZY542N5YW)');
-
-    // 클린업
-    return () => {
-      document.head.removeChild(script1);
-      document.head.removeChild(script2);
-    };
+      const script2 = document.createElement('script');
+      script2.innerHTML = `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-PZY542N5YW');
+      `;
+      document.head.appendChild(script2);
+      console.log('✅ Google Analytics 로드 완료');
+    }
   }, []);
+
+  // 3. 결제 버튼 클릭 기능 (구매하기 버튼 누르면 실행됨)
+  const handlePurchase = () => {
+    // GA4에 "결제 시작" 신호 보내기
+    if (window.gtag) {
+      window.gtag('event', 'begin_checkout', {
+        currency: 'KRW',
+        value: 9900,
+        items: [{ item_name: 'ALPS Premium Roadmap' }]
+      });
+    }
+    
+    // 👇 여기에 실제 결제 링크를 넣으세요! (지금은 예시로 구글로 이동합니다)
+    window.open('https://your-payment-link.com', '_blank'); 
+  };
 
   const handleNext = () => {
     // 1학년 1학기면 step 3(들은 수업)를 건너뛰고 step 4로
@@ -89,7 +105,6 @@ export default function App() {
   };
 
   const handleBack = () => {
-    // 1학년 1학기가 step 4로 건너뛴 경우, 뒤로 갈 때 step 2로
     if (step === 4 && userData.grade === '1학년' && userData.semester === '1학기') {
       setStep(2);
     } else {
@@ -125,12 +140,10 @@ export default function App() {
     setSelectedCourse(null);
   };
 
-  // 관리자 대시보드 표시 중
   if (showAdmin) {
     return <AdminDashboard onBack={() => setShowAdmin(false)} />;
   }
 
-  // 과목 상세 페이지 표시 중
   if (selectedCourse) {
     return (
       <CourseDetailPage
@@ -197,11 +210,24 @@ export default function App() {
       )}
 
       {step === 6 && (
-        <ResultScreen
-          userData={userData}
-          onCourseClick={handleCourseClick}
-          onRestart={handleRestart}
-        />
+        // 👇 결과 화면 아래에 결제 버튼을 강제로 추가했습니다 (테스트용)
+        <div className="relative">
+          <ResultScreen
+            userData={userData}
+            onCourseClick={handleCourseClick}
+            onRestart={handleRestart}
+          />
+          {/* 만약 ResultScreen 안에 구매 버튼이 없다면, 
+             아래 주석을 풀어서 버튼을 노출시킬 수 있습니다.
+          */}
+          {/* <button 
+                onClick={handlePurchase}
+                style={{position: 'fixed', bottom: '20px', right: '20px', padding: '15px', background: 'red', color: 'white', zIndex: 9999}}
+              >
+                🚀 로드맵 구매하기 (Test)
+              </button> 
+          */}
+        </div>
       )}
     </>
   );
