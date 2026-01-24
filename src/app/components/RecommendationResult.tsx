@@ -1,6 +1,7 @@
 import { UserData } from "../App";
-import { getRecommendations, courseInterestMapping } from "../utils/recommendations";
+import { getRecommendations } from "../utils/recommendations";
 import { getCourseSyllabus, getCourseTips } from "../utils/courseTips";
+import { careerRoadmaps } from "../utils/courseRoadmaps";
 
 interface RecommendationResultProps {
   userData: UserData;
@@ -144,11 +145,15 @@ export function RecommendationResult({
                   const syllabus = getCourseSyllabus(course.name);
                   const tips = getCourseTips(course.name);
 
-                  // 관심분야 중 과목의 가중치가 있는 분야만 필터링
-                  const courseMapping = courseInterestMapping[course.name] || {};
-                  const relevantInterests = userData.interestArea.filter(
-                    area => courseMapping[area] && courseMapping[area] > 0
-                  );
+                  // 로드맵 기반 - 어느 관심분야 로드맵에 속하는지 확인
+                  const grade = userData.grade.replace('학년', '');
+                  const semester = userData.semester.replace('학기', '');
+                  const currentSemester = `${grade}-${semester}`;
+                  const relevantInterests = userData.interestArea.filter((area) => {
+                    const roadmap = careerRoadmaps[area];
+                    if (!roadmap || !roadmap[currentSemester]) return false;
+                    return roadmap[currentSemester].includes(course.name);
+                  });
 
                   // 추천 근거 텍스트 생성
                   let reasonText = "";

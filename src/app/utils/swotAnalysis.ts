@@ -65,7 +65,7 @@ export function generateSWOT(userData: UserData): SWOTAnalysis {
     const [grade, sem] = course.semester.split('-');
     const courseSemesterNum = (parseInt(grade) - 1) * 2 + parseInt(sem);
     return courseSemesterNum < currentSemesterNum && 
-           (course.category === '전공기초(필수)' || course.category === '교양필수');
+           course.category === '전공기초(필수)';
   });
 
   const missedRequired = allRequiredCourses.filter(c => 
@@ -73,7 +73,8 @@ export function generateSWOT(userData: UserData): SWOTAnalysis {
   );
 
   if (missedRequired.length > 0) {
-    weaknesses.push(`필수 과목 ${missedRequired.length}개가 미이수 상태예요`);
+    const courseNames = missedRequired.slice(0, 3).map(c => c.name).join(', ');
+    weaknesses.push(`필수 과목 미이수: ${courseNames}${missedRequired.length > 3 ? ' 외' : ''}를 스스로 공부하면 좋아요`);
   }
 
   // 관심분야 관련 과목 부족
@@ -82,12 +83,12 @@ export function generateSWOT(userData: UserData): SWOTAnalysis {
     const completedInArea = completedCourses.filter(c => relatedCourses.includes(c.name)).length;
     
     if (completedInArea === 0 && currentGrade >= 2) {
-      weaknesses.push(`${area} 분야 관련 과목 수강이 필요해요`);
+      weaknesses.push(`${area} 분야 기초 과목 수강을 권장해요`);
     }
   });
 
   if (totalCompleted < 5 && currentGrade >= 2) {
-    weaknesses.push('전공 과목 이수가 부족한 편이에요');
+    weaknesses.push('전공 기초를 더 다질 필요가 있어요');
   }
 
   if (weaknesses.length === 0) {

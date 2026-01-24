@@ -80,21 +80,6 @@ export default function App() {
     }
   }, []);
 
-  // 3. 결제 버튼 클릭 기능 (구매하기 버튼 누르면 실행됨)
-  const handlePurchase = () => {
-    // GA4에 "결제 시작" 신호 보내기
-    if (window.gtag) {
-      window.gtag('event', 'begin_checkout', {
-        currency: 'KRW',
-        value: 9900,
-        items: [{ item_name: 'ALPS Premium Roadmap' }]
-      });
-    }
-    
-    // 👇 여기에 실제 결제 링크를 넣으세요! (지금은 예시로 구글로 이동합니다)
-    window.open('https://your-payment-link.com', '_blank'); 
-  };
-
   const handleNext = () => {
     // 1학년 1학기면 step 3(들은 수업)를 건너뛰고 step 4로
     if (step === 2 && userData.grade === '1학년' && userData.semester === '1학기') {
@@ -210,24 +195,11 @@ export default function App() {
       )}
 
       {step === 6 && (
-        // 👇 결과 화면 아래에 결제 버튼을 강제로 추가했습니다 (테스트용)
-        <div className="relative">
-          <ResultScreen
-            userData={userData}
-            onCourseClick={handleCourseClick}
-            onRestart={handleRestart}
-          />
-          {/* 만약 ResultScreen 안에 구매 버튼이 없다면, 
-             아래 주석을 풀어서 버튼을 노출시킬 수 있습니다.
-          */}
-          {/* <button 
-                onClick={handlePurchase}
-                style={{position: 'fixed', bottom: '20px', right: '20px', padding: '15px', background: 'red', color: 'white', zIndex: 9999}}
-              >
-                🚀 로드맵 구매하기 (Test)
-              </button> 
-          */}
-        </div>
+        <ResultScreen
+          userData={userData}
+          onCourseClick={handleCourseClick}
+          onRestart={handleRestart}
+        />
       )}
     </>
   );

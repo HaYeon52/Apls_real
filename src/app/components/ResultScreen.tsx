@@ -2,10 +2,9 @@ import { UserData } from "../App";
 import { getRecommendations } from "../utils/recommendations";
 import { generateSWOT } from "../utils/swotAnalysis";
 import { getCourseSyllabus, getCourseTips } from "../utils/courseTips";
-import { courseInterestMapping } from "../utils/recommendations";
+import { careerRoadmaps } from "../utils/courseRoadmaps";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
 import { useEffect, useState } from "react";
-import { Lock } from "lucide-react";
 
 interface ResultScreenProps {
   userData: UserData;
@@ -26,16 +25,10 @@ export function ResultScreen({
   const recommendations = getRecommendations(userData);
   const swot = generateSWOT(userData);
   const [isSaved, setIsSaved] = useState(false);
-  const [isPurchased, setIsPurchased] = useState(false);
 
   // 나이 계산
   const currentYear = 2025;
   const age = userData.age ? currentYear - parseInt(userData.age) + 1 : 0;
-
-  const handlePurchase = () => {
-    // 구매 처리 로직
-    setIsPurchased(true);
-  };
 
   // 설문 결과 자동 저장
   useEffect(() => {
@@ -100,7 +93,7 @@ export function ResultScreen({
         </div>
 
         {/* 블러 처리된 콘텐츠 영역 */}
-        <div className={`transition-all duration-300 ${!isPurchased ? 'blur-md select-none' : ''}`}>
+        <div className="transition-all duration-300">
           {/* 사용자 정보 요약 */}
           <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl shadow-xl p-6 text-white">
             <h3 className="text-xl font-bold mb-4">
@@ -275,11 +268,15 @@ export function ResultScreen({
                     const syllabus = getCourseSyllabus(course.name);
                     const tips = getCourseTips(course.name);
 
-                    // 관심분야 중 과목의 가중치가 있는 분야만 필터링
-                    const courseMapping = courseInterestMapping[course.name] || {};
-                    const relevantInterests = userData.interestArea.filter(
-                      (area) => courseMapping[area] && courseMapping[area] > 0
-                    );
+                    // 로드맵 기반 - 어느 관심분야 로드맵에 속하는지 확인
+                    const grade = userData.grade.replace('학년', '');
+                    const semester = userData.semester.replace('학기', '');
+                    const currentSemester = `${grade}-${semester}`;
+                    const relevantInterests = userData.interestArea.filter((area) => {
+                      const roadmap = careerRoadmaps[area];
+                      if (!roadmap || !roadmap[currentSemester]) return false;
+                      return roadmap[currentSemester].includes(course.name);
+                    });
 
                     // 추천 근거 텍스트 생성
                     let reasonText = "";
@@ -377,56 +374,6 @@ export function ResultScreen({
             © 2025 한양대학교 산업공학과
           </p>
         </div>
-
-        {/* 블러 오버레이 및 구매 버튼 */}
-        {!isPurchased && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/20 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-md mx-4">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Lock className="w-10 h-10 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                진로 맞춤 추천 결과
-              </h3>
-              <p className="text-gray-600 mb-6">
-                나만의 SWOT 분석과 맞춤형 과목 추천 결과를<br />
-                확인하시려면 구매가 필요합니다
-              </p>
-              <div className="bg-blue-50 rounded-lg p-4 mb-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-700">포함 내용</span>
-                </div>
-                <ul className="text-left space-y-2 text-sm text-gray-700">
-                  <li className="flex items-center gap-2">
-                    <span className="text-blue-600">✓</span>
-                    <span>개인 맞춤형 SWOT 분석</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-blue-600">✓</span>
-                    <span>관심분야별 과목 추천</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-blue-600">✓</span>
-                    <span>교수님의 상세 코멘트</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-blue-600">✓</span>
-                    <span>선배들의 꿀팁 & 노하우</span>
-                  </li>
-                </ul>
-              </div>
-              <button
-                onClick={handlePurchase}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition font-bold text-lg shadow-lg"
-              >
-                구매하기
-              </button>
-              <p className="text-xs text-gray-500 mt-4">
-                구매 후 즉시 모든 정보를 확인할 수 있습니다
-              </p>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

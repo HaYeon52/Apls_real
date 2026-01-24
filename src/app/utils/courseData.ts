@@ -55,14 +55,10 @@ export const allCourses: Course[] = [
   { name: '신뢰성및보전공학', courseCode: 'INE4044', category: '전공심화', credits: '3.00-3.00', semester: '3-2', lectureHours: 3, labHours: 0, description: '시스템 신뢰성 분석' },
   { name: '실험계획법', courseCode: 'INE4004', category: '전공핵심', credits: '3.00-3.00', semester: '3-2', lectureHours: 3, labHours: 0, description: '효율적 실험 설계 및 분석' },
 
-  // 4학년 1,2학기 공통
-  { name: '산업공학캡스톤Pbl', courseCode: 'PBL4019', category: '전공심화', credits: '3.00-4.00', semester: '4-1', lectureHours: 2, labHours: 2, description: '문제 기반 학습 캡스톤' },
-
   // 4학년 1학기
   { name: '네트워크및재고전략', courseCode: 'INE3082', category: '전공심화', credits: '3.00-3.00', semester: '4-1', lectureHours: 3, labHours: 0, description: '네트워크 최적화 및 재고 관리' },
-  { name: '산업공학종합설계1', courseCode: 'INE4089', category: '전공심화', credits: '3.00-3.00', semester: '4-1', lectureHours: 0, labHours: 3, description: '산업공학 캡스톤 프로젝트 1' },
   { name: '스마트제조데이터분석', courseCode: 'INE4115', category: '전공심화', credits: '3.00-3.00', semester: '4-1', lectureHours: 3, labHours: 0, description: '스마트 제조 환경의 데이터 분석' },
+  { name: '응용데이터애널리틱스', courseCode: 'INE4116', category: '전공심화', credits: '3.00-3.00', semester: '4-1', lectureHours: 3, labHours: 0, description: '실무 데이터 분석 및 시각화' },
 
   // 4학년 2학기
-  { name: '산업공학종합설계2', courseCode: 'INE4090', category: '전공심화', credits: '3.00-3.00', semester: '4-2', lectureHours: 0, labHours: 3, description: '산업공학 캡스톤 프로젝트 2' },
 ];

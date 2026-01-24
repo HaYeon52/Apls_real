@@ -1,59 +1,11 @@
 import { UserData } from '../App';
 import { allCourses, Course } from './courseData';
+import { careerRoadmaps } from './courseRoadmaps';
 
 interface Recommendations {
   currentSemesterCourses: Course[];
   missingRequiredCourses: Course[];
 }
-
-// 관심 분야별 과목 연관도 (새로운 분야로 매핑)
-export const courseInterestMapping: Record<string, Record<string, number>> = {
-  // 1학년 2학기
-  '공학입문설계': { '컨설팅/기획': 0.7, '공정 (생산, 품질)': 0.4, '물류/SCM': 0.4 },
-  '산업공학개론': { '물류/SCM': 0.7, '공정 (생산, 품질)': 0.7, '컨설팅/기획': 0.6 },
-  '산업인공지능시스템응용': { '데이터': 1.0, '물류/SCM': 0.6, '공정 (생산, 품질)': 0.5 },
-  
-  // 2학년 1학기
-  '객체지향프로그래밍': { '데이터': 1.0, '물류/SCM': 0.3, '컨설팅/기획': 0.2 },
-  '산공수학': { '데이터': 0.8, '금융': 0.8, '물류/SCM': 0.6, '공정 (생산, 품질)': 0.6, '컨설팅/기획': 0.4 },
-  '수치해석': { '데이터': 0.9, '금융': 0.7, '물류/SCM': 0.5 },
-  '스마트팩토리개론': { '물류/SCM': 1.0, '공정 (생산, 품질)': 0.8, '데이터': 0.6 },
-  '확률통계론': { '데이터': 1.0, '금융': 0.9, '공정 (생산, 품질)': 0.8 },
-  
-  // 2학년 2학기
-  '공업경제학': { '금융': 1.0, '컨설팅/기획': 0.9 },
-  '데이터구조론': { '데이터': 1.0, '물류/SCM': 0.4 },
-  '선형계획법': { '물류/SCM': 1.0, '데이터': 0.7, '금융': 0.6, '컨설팅/기획': 0.6 },
-  
-  // 3학년 1학기
-  '경영과학과운영연구1': { '물류/SCM': 0.9, '컨설팅/기획': 1.0, '금융': 0.7 },
-  '기계학습과데이터마이닝': { '데이터': 1.0, '금융': 0.5 },
-  '물류관리': { '물류/SCM': 1.0 },
-  '산업공학Hy-Up(실용연구실습)1': { '컨설팅/기획': 0.5, '데이터': 0.4 },
-  '시계열분석및예측': { '데이터': 1.0, '금융': 0.9 },
-  '운용관리': { '물류/SCM': 0.9, '컨설팅/기획': 0.7 },
-  '품질경영': { '공정 (생산, 품질)': 1.0, '컨설팅/기획': 0.6 },
-  
-  // 3학년 2학기
-  '경영과학과운영연구2': { '물류/SCM': 0.9, '컨설팅/기획': 1.0, '데이터': 0.7 },
-  '경영전략및데이터베이스': { '컨설팅/기획': 1.0, '데이터': 0.7, '물류/SCM': 0.5 },
-  '공급사슬경영(Scm)': { '물류/SCM': 1.0, '컨설팅/기획': 0.6 },
-  '금융공학개론': { '금융': 1.0, '데이터': 0.5 },
-  '산업공학Hy-Up(실용연구실습)2': { '컨설팅/기획': 0.5, '데이터': 0.4 },
-  '신뢰성및보전공학': { '공정 (생산, 품질)': 1.0, '물류/SCM': 0.4 },
-  '실험계획법': { '공정 (생산, 품질)': 1.0, '데이터': 0.9 },
-  
-  // 4학년 1학기
-  '네트워크및재고전략': { '물류/SCM': 1.0, '컨설팅/기획': 0.5 },
-  '산업공학Hy-Up(실용연구실습)3': { '컨설팅/기획': 0.5, '데이터': 0.4 },
-  '산업공학종합설계1': { '컨설팅/기획': 0.8, '물류/SCM': 0.6, '데이터': 0.5 },
-  '산업공학캡스톤Pbl': { '컨설팅/기획': 0.8, '물류/SCM': 0.6, '데이터': 0.5 },
-  '스마트제조데이터분석': { '데이터': 1.0, '물류/SCM': 0.7, '공정 (생산, 품질)': 0.6 },
-  
-  // 4학년 2학기
-  '산업공학Hy-Up(실용연구실습)4': { '컨설팅/기획': 0.5, '데이터': 0.4 },
-  '산업공학종합설계2': { '컨설팅/기획': 0.8, '물류/SCM': 0.6, '데이터': 0.5 },
-};
 
 // 학년-학기를 숫자로 변환
 function getSemesterNumber(grade: string, semester: string): number {
@@ -62,19 +14,22 @@ function getSemesterNumber(grade: string, semester: string): number {
   return (gradeNum - 1) * 2 + semNum;
 }
 
-// 가중치 기반 과목 추천 점수 계산
-function calculateCourseScore(
-  courseName: string, 
-  interestAreas: string[]
+// 로드맵 기반 과목 추천 점수 계산
+function calculateRoadmapScore(
+  courseName: string,
+  interestAreas: string[],
+  currentSemester: string
 ): number {
-  const interestWeights = [0.5, 0.3, 0.2];
+  const weights = [1.0, 0.6, 0.3]; // 1지망, 2지망, 3지망
   let score = 0;
 
-  // 관심분야 점수 계산 (100% 가중치)
   interestAreas.forEach((area, index) => {
-    const mapping = courseInterestMapping[courseName];
-    if (mapping && mapping[area]) {
-      score += mapping[area] * interestWeights[index];
+    const roadmap = careerRoadmaps[area];
+    if (roadmap && roadmap[currentSemester]) {
+      const isInRoadmap = roadmap[currentSemester].includes(courseName);
+      if (isInRoadmap) {
+        score += weights[index];
+      }
     }
   });
 
@@ -87,10 +42,13 @@ export function getRecommendations(userData: UserData): Recommendations {
     missingRequiredCourses: [],
   };
 
-  // 현재 학년-학기 숫자
+  // 현재 학년-학기 (로드맵 형식으로 변환: "3학년" + "1학기" → "3-1")
+  const grade = userData.grade.replace('학년', '');
+  const semester = userData.semester.replace('학기', '');
+  const currentSemester = `${grade}-${semester}`;
   const currentSemesterNum = getSemesterNumber(userData.grade, userData.semester);
 
-  // 앞 학기 필수 과목 중 미이수 과목 찾기
+  // 앞 학기 필수 과목 중 미이수 과목 찾기 (SWOT 분석용)
   const previousCourses = allCourses.filter(course => {
     const [grade, sem] = course.semester.split('-');
     const courseSemesterNum = (parseInt(grade) - 1) * 2 + parseInt(sem);
@@ -116,7 +74,7 @@ export function getRecommendations(userData: UserData): Recommendations {
     return courseSemesterNum === currentSemesterNum;
   });
 
-  // 필수 과목 (전공기초(필수)만)
+  // 필수 과목 (전공기초(필수)만) - 무조건 포함
   const requiredCourses = currentSemesterCourses.filter(
     course => course.category === '전공기초(필수)' && !userData.completedCourses.includes(course.courseCode)
   );
@@ -126,13 +84,13 @@ export function getRecommendations(userData: UserData): Recommendations {
     course => course.category !== '전공기초(필수)' && !userData.completedCourses.includes(course.courseCode)
   );
 
-  // 가중치 기반 점수 계산
+  // 로드맵 기반 점수 계산
   const scoredElectives = electiveCourses
     .map(course => ({
       ...course,
-      score: calculateCourseScore(course.name, userData.interestArea),
+      score: calculateRoadmapScore(course.name, userData.interestArea, currentSemester),
     }))
-    .filter(course => course.score >= 0.3)
+    .filter(course => course.score > 0) // 점수가 있는 과목만
     .sort((a, b) => b.score - a.score);
 
   // 학기당 최대 5과목 제한
@@ -147,46 +105,48 @@ export function getRecommendations(userData: UserData): Recommendations {
 
   // 최종 추천 과목 = 필수 + 선택
   recommendations.currentSemesterCourses = [
-    ...requiredCourses.map(c => ({ ...c, score: 1.0, isRequired: true })),
+    ...requiredCourses.map(c => ({ ...c, score: 999, isRequired: true })), // 필수는 최우선
     ...selectedElectives.map(c => ({ ...c, isRequired: false })),
   ].sort((a, b) => b.score - a.score) as Course[];
 
-  // 객체지향프로그래밍과 데이터구조론 통합 처리
-  const hasOOP = recommendations.currentSemesterCourses.find(c => c.name === '객체지향프로그래밍');
-  const hasDS = recommendations.currentSemesterCourses.find(c => c.name === '데이터구조론');
-  
-  if (hasOOP || hasDS) {
-    // 두 과목 중 하나라도 있으면, 통합 과목으로 대체
-    const combinedScore = Math.max(
-      hasOOP?.score || 0,
-      hasDS?.score || 0
-    );
+  // 객체지향프로그래밍과 데이터구조론 통합 처리 (2-2학기만)
+  if (currentSemester === '2-2') {
+    const hasOOP = recommendations.currentSemesterCourses.find(c => c.name === '객체지향프로그래밍');
+    const hasDS = recommendations.currentSemesterCourses.find(c => c.name === '데이터구조론');
     
-    // 기존 개별 과목 제거
-    recommendations.currentSemesterCourses = recommendations.currentSemesterCourses.filter(
-      c => c.name !== '객체지향프로그래밍' && c.name !== '데이터구조론'
-    );
-    
-    // 통합 과목 추가
-    const combinedCourse: Course = {
-      name: '객체지향프로그래밍 + 데이터구조론',
-      courseCode: 'COM2018+INE2011',
-      category: '전공핵심',
-      credits: '6.00-6.00',
-      semester: '2-2',
-      lectureHours: 6,
-      labHours: 0,
-      description: '통합 과정: 프로그래밍 리터러시 완성 - Java 기반 객체지향 프로그래밍과 자료구조 및 알고리즘',
-    };
-    
-    recommendations.currentSemesterCourses.push({
-      ...combinedCourse,
-      score: combinedScore,
-      isRequired: false,
-    } as any);
-    
-    // 점수 순으로 재정렬
-    recommendations.currentSemesterCourses.sort((a, b) => b.score - a.score);
+    if (hasOOP || hasDS) {
+      // 두 과목 점수 합산
+      const combinedScore = (hasOOP?.score || 0) + (hasDS?.score || 0);
+      
+      // 기존 개별 과목 제거
+      recommendations.currentSemesterCourses = recommendations.currentSemesterCourses.filter(
+        c => c.name !== '객체지향프로그래밍' && c.name !== '데이터구조론'
+      );
+      
+      // 통합 과목 추가
+      const combinedCourse: Course = {
+        name: '객체지향프로그래밍 + 데이터구조론',
+        courseCode: 'COM2018+INE2011',
+        category: '전공핵심',
+        credits: '6.00-6.00',
+        semester: '2-2',
+        lectureHours: 6,
+        labHours: 0,
+        description: '통합 과정: 프로그래밍 리터러시 완성 - Java 기반 객체지향 프로그래밍과 자료구조 및 알고리즘',
+      };
+      
+      recommendations.currentSemesterCourses.push({
+        ...combinedCourse,
+        score: combinedScore,
+        isRequired: false,
+      } as any);
+      
+      // 점수 순으로 재정렬
+      recommendations.currentSemesterCourses.sort((a, b) => b.score - a.score);
+      
+      // 다시 5과목으로 제한
+      recommendations.currentSemesterCourses = recommendations.currentSemesterCourses.slice(0, 5);
+    }
   }
 
   return recommendations;
