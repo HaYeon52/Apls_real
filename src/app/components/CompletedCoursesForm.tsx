@@ -20,6 +20,13 @@ export function CompletedCoursesForm({ userData, setUserData, onNext, onBack }: 
   const previousCourses = allCourses.filter(course => {
     const [grade, sem] = course.semester.split('-');
     const courseSemesterNum = (parseInt(grade) - 1) * 2 + parseInt(sem);
+    
+    // 산업인공지능시스템응용은 작년부터 신설된 과목
+    // 2-2학기(4) 이상 학생에게는 선수강 목록에서 제외
+    if (course.name === '산업인공지능시스템응용' && currentSemesterNum >= 4) {
+      return false;
+    }
+    
     return courseSemesterNum < currentSemesterNum;
   });
 

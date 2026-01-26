@@ -1,5 +1,6 @@
 import { UserData } from '../App';
 import { allCourses } from './courseData';
+import { careerRoadmaps } from './courseRoadmaps';
 
 interface SWOTAnalysis {
   strengths: string[];
@@ -24,13 +25,32 @@ export function generateSWOT(userData: UserData): SWOTAnalysis {
     c.category === '전공기초(필수)' || c.category === '교양필수'
   ).length;
 
+  // 현재 학기 정보
+  const currentGrade = parseInt(userData.grade.replace('학년', ''));
+  const currentSemester = parseInt(userData.semester.replace('학기', ''));
+  const currentSemesterNum = (currentGrade - 1) * 2 + currentSemester;
+
   // Strengths 분석
-  if (requiredCompleted >= 3) {
+  // 1. 지난 학기까지의 모든 필수 과목 이수 여부 체크
+  const allRequiredCoursesUpToLastSemester = allCourses.filter(course => {
+    const [grade, sem] = course.semester.split('-');
+    const courseSemesterNum = (parseInt(grade) - 1) * 2 + parseInt(sem);
+    return courseSemesterNum < currentSemesterNum && 
+           course.category === '전공기초(필수)';
+  });
+
+  const allRequiredCompleted = allRequiredCoursesUpToLastSemester.every(c => 
+    userData.completedCourses.includes(c.courseCode)
+  );
+
+  if (allRequiredCompleted && allRequiredCoursesUpToLastSemester.length > 0) {
     strengths.push('전공 필수 과목을 충실히 이수했어요');
   }
   
   if (totalCompleted >= 10) {
     strengths.push('다양한 과목 수강으로 폭넓은 기초를 갖췄어요');
+  } else if (totalCompleted >= 5) {
+    strengths.push('전공 기초를 착실히 쌓아가고 있어요');
   }
 
   // 관심분야별 과목 이수 체크
@@ -56,37 +76,49 @@ export function generateSWOT(userData: UserData): SWOTAnalysis {
   }
 
   // Weaknesses 분석
-  const currentGrade = parseInt(userData.grade.replace('학년', ''));
-  const currentSemester = parseInt(userData.semester.replace('학기', ''));
-  const currentSemesterNum = (currentGrade - 1) * 2 + currentSemester;
-
-  // 필수 과목 중 미이수 체크
-  const allRequiredCourses = allCourses.filter(course => {
-    const [grade, sem] = course.semester.split('-');
-    const courseSemesterNum = (parseInt(grade) - 1) * 2 + parseInt(sem);
-    return courseSemesterNum < currentSemesterNum && 
-           course.category === '전공기초(필수)';
-  });
-
-  const missedRequired = allRequiredCourses.filter(c => 
+  // 1. 필수 과목 중 미이수 체크
+  const missedRequired = allRequiredCoursesUpToLastSemester.filter(c => 
     !userData.completedCourses.includes(c.courseCode)
   );
 
   if (missedRequired.length > 0) {
     const courseNames = missedRequired.slice(0, 3).map(c => c.name).join(', ');
-    weaknesses.push(`필수 과목 미이수: ${courseNames}${missedRequired.length > 3 ? ' 외' : ''}를 스스로 공부하면 좋아요`);
+    weaknesses.push(`필수 과목 미이수: ${courseNames}${missedRequired.length > 3 ? ' 외' : ''}를 이번 학기에 꼭 수강하세요`);
   }
 
-  // 관심분야 관련 과목 부족
+  // 2. 관심분야 로드맵 기반 미이수 과목 체크
   userData.interestArea.forEach(area => {
     const relatedCourses = interestCourseMap[area] || [];
-    const completedInArea = completedCourses.filter(c => relatedCourses.includes(c.name)).length;
     
-    if (completedInArea === 0 && currentGrade >= 2) {
-      weaknesses.push(`${area} 분야 기초 과목 수강을 권장해요`);
+    // 지난 학기까지 개설된 핵심 과목 중 안 들은 것 찾기
+    const missedCoreCourses: string[] = [];
+    relatedCourses.forEach(courseName => {
+      const course = allCourses.find(c => c.name === courseName);
+      if (course) {
+        const [grade, sem] = course.semester.split('-');
+        const courseSemesterNum = (parseInt(grade) - 1) * 2 + parseInt(sem);
+        
+        // 산업인공지능시스템응용은 작년부터 신설된 과목
+        // 2-2학기 이상 학생들(3학년, 4학년)에게는 약점으로 표시하지 않음
+        if (courseName === '산업인공지능시스템응용' && currentSemesterNum >= 4) {
+          return; // 2-2학기(4) 이상이면 체크 안함
+        }
+        
+        // 현재 학기보다 이전에 개설되고, 아직 안 들은 과목
+        if (courseSemesterNum < currentSemesterNum && 
+            !userData.completedCourses.includes(course.courseCode)) {
+          missedCoreCourses.push(courseName);
+        }
+      }
+    });
+
+    if (missedCoreCourses.length > 0) {
+      const courseNames = missedCoreCourses.slice(0, 2).join(', ');
+      weaknesses.push(`${area} 분야의 ${courseNames}${missedCoreCourses.length > 2 ? ' 등' : ''}을 듣지 않아 기초가 부족할 수 있어요`);
     }
   });
 
+  // 3. 전반적인 이수 과목 부족
   if (totalCompleted < 5 && currentGrade >= 2) {
     weaknesses.push('전공 기초를 더 다질 필요가 있어요');
   }
@@ -96,14 +128,37 @@ export function generateSWOT(userData: UserData): SWOTAnalysis {
   }
 
   // Opportunities 분석
-  if (currentGrade <= 2) {
+  // 1. 학년별 다음 학기 목표
+  if (currentGrade === 1) {
     opportunities.push('다양한 분야를 탐색할 수 있는 시기예요');
+  } else if (currentGrade === 2) {
+    if (userData.careerPath.includes('대학원 진학')) {
+      opportunities.push('학부연구생으로 연구 경험을 쌓을 수 있어요');
+    } else {
+      opportunities.push('인턴십과 공모전으로 실무 역량을 키울 수 있어요');
+    }
+  } else if (currentGrade === 3) {
+    if (userData.careerPath.includes('창업')) {
+      opportunities.push('창업 공모전과 액셀러레이팅 프로그램에 도전하세요');
+    } else if (userData.careerPath.includes('대학원 진학')) {
+      opportunities.push('논문 작성과 학회 발표로 연구 역량을 강화하세요');
+    } else {
+      opportunities.push('기업 프로젝트와 현장실습으로 취업을 준비하세요');
+    }
+  } else if (currentGrade === 4) {
+    if (userData.careerPath.includes('대학원 진학')) {
+      opportunities.push('대학원 입시와 연구계획서 작성에 집중하세요');
+    } else {
+      opportunities.push('포트폴리오 완성과 최종 취업 준비에 집중하세요');
+    }
   }
 
+  // 2. 융합형 인재
   if (userData.interestArea.length >= 2) {
     opportunities.push('융합형 인재로 성장할 수 있어요');
   }
 
+  // 3. 1지망 관심분야별 기회
   userData.interestArea.forEach((area, index) => {
     if (index === 0) { // 첫 번째 관심분야
       if (area === '데이터') {
