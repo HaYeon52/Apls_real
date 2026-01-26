@@ -25,12 +25,17 @@ export function ResultScreen({
   const recommendations = getRecommendations(userData);
   const swot = generateSWOT(userData);
   const [isSaved, setIsSaved] = useState(false);
+  const [surveyStartTime] = useState(() => {
+    // App.tsx에서 전달받지 않으므로 localStorage에서 가져오기
+    const savedTime = localStorage.getItem('survey_start_time');
+    return savedTime ? parseInt(savedTime) : Date.now();
+  });
 
   // 나이 계산
   const currentYear = 2025;
   const age = userData.age ? currentYear - parseInt(userData.age) + 1 : 0;
 
-  // 설문 결과 자동 저장
+  // 설문 결과 자동 저장 + form_complete 이벤트
   useEffect(() => {
     const saveSurveyResponse = async () => {
       try {
@@ -78,8 +83,48 @@ export function ResultScreen({
       }
     };
 
+    // form_complete 이벤트 전송
+    const totalTimeSeconds = Math.round((Date.now() - surveyStartTime) / 1000);
+    
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'form_complete',
+      recommended_courses_count: recommendations.currentSemesterCourses.length,
+      missing_required_count: recommendations.missingRequiredCourses.length,
+      has_required_warning: recommendations.missingRequiredCourses.length > 0,
+      total_time_seconds: totalTimeSeconds
+    });
+
+    console.log('📊 [GTM] form_complete:', {
+      recommended_courses_count: recommendations.currentSemesterCourses.length,
+      missing_required_count: recommendations.missingRequiredCourses.length,
+      has_required_warning: recommendations.missingRequiredCourses.length > 0,
+      total_time_seconds: totalTimeSeconds
+    });
+
     saveSurveyResponse();
   }, []);
+
+  const handleCourseClick = (course: any, rank: number) => {
+    // course_detail_view 이벤트 전송
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'course_detail_view',
+      course_name: course.name,
+      course_category: course.category,
+      is_required: course.category === "전공기초(필수)",
+      recommendation_rank: rank + 1
+    });
+
+    console.log('📊 [GTM] course_detail_view:', {
+      course_name: course.name,
+      course_category: course.category,
+      is_required: course.category === "전공기초(필수)",
+      recommendation_rank: rank + 1
+    });
+
+    onCourseClick(course);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-50 p-4">
@@ -294,14 +339,7 @@ export function ResultScreen({
                     return (
                       <div
                         key={index}
-                        onClick={() =>
-                          onCourseClick({
-                            name: course.name,
-                            category: course.category,
-                            credits: course.credits,
-                            description: course.description,
-                          })
-                        }
+                        onClick={() => handleCourseClick(course, index)}
                         className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200 cursor-pointer hover:shadow-lg transition-all"
                       >
                         <div className="flex items-start justify-between">
@@ -361,14 +399,6 @@ export function ResultScreen({
               </div>
             )}
           </div>
-
-          {/* 다시하기 버튼 */}
-          <button
-            onClick={onRestart}
-            className="w-full bg-gray-600 text-white py-4 rounded-lg hover:bg-gray-700 transition font-medium mt-6"
-          >
-            다시 시작하기
-          </button>
 
           <p className="text-center text-sm text-gray-500 mt-8">
             © 2025 한양대학교 산업공학과

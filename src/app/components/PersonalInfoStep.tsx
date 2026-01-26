@@ -1,4 +1,5 @@
 import { UserData } from "../App";
+import { useEffect, useState } from "react";
 
 interface PersonalInfoStepProps {
   userData: UserData;
@@ -11,6 +12,8 @@ export function PersonalInfoStep({
   setUserData,
   onNext,
 }: PersonalInfoStepProps) {
+  const [startTime] = useState(Date.now());
+
   const isValid = 
     userData.name && 
     userData.age && 
@@ -18,6 +21,46 @@ export function PersonalInfoStep({
     (userData.gender === "여성" || userData.militaryStatus) &&
     userData.howDidYouKnow &&
     (userData.howDidYouKnow !== "그외" || userData.howDidYouKnowOther);
+
+  // 페이지 이탈 감지
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'survey_exit',
+        exit_step: 'step1',
+        time_spent: Math.round((Date.now() - startTime) / 1000)
+      });
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [startTime]);
+
+  const handleNext = () => {
+    const stepDuration = Math.round((Date.now() - startTime) / 1000);
+
+    // GTM 이벤트 전송
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'step1_complete',
+      user_birth: userData.age,
+      user_gender: userData.gender,
+      military_status: userData.gender === "여성" ? "해당없음" : userData.militaryStatus,
+      user_source: userData.howDidYouKnow === "그외" ? userData.howDidYouKnowOther : userData.howDidYouKnow,
+      step_duration: stepDuration
+    });
+
+    console.log('📊 [GTM] step1_complete:', {
+      user_birth: userData.age,
+      user_gender: userData.gender,
+      military_status: userData.gender === "여성" ? "해당없음" : userData.militaryStatus,
+      user_source: userData.howDidYouKnow === "그외" ? userData.howDidYouKnowOther : userData.howDidYouKnow,
+      step_duration: stepDuration
+    });
+
+    onNext();
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-50 p-4">
@@ -162,7 +205,7 @@ export function PersonalInfoStep({
                     : "border-gray-300 text-gray-700 hover:border-blue-300"
                 }`}
               >
-                카카오톡 공지방
+                카카오톡 ��지방
               </button>
               <button
                 type="button"
@@ -217,7 +260,7 @@ export function PersonalInfoStep({
 
           {/* 다음 버튼 */}
           <button
-            onClick={onNext}
+            onClick={handleNext}
             disabled={!isValid}
             className={`w-full py-4 rounded-lg font-medium transition ${
               isValid

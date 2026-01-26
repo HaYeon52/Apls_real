@@ -1,4 +1,5 @@
 import { UserData } from "../App";
+import { useEffect, useState } from "react";
 
 interface AcademicInfoStepProps {
   userData: UserData;
@@ -13,7 +14,58 @@ export function AcademicInfoStep({
   onNext,
   onBack,
 }: AcademicInfoStepProps) {
+  const [startTime] = useState(Date.now());
   const isValid = userData.studentId && userData.grade && userData.semester;
+
+  // 페이지 이탈 감지
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'survey_exit',
+        exit_step: 'step2',
+        time_spent: Math.round((Date.now() - startTime) / 1000)
+      });
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [startTime]);
+
+  const handleNext = () => {
+    const stepDuration = Math.round((Date.now() - startTime) / 1000);
+
+    // GTM 이벤트 전송
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'step2_complete',
+      user_grade: userData.grade,
+      user_semester: userData.semester,
+      step_duration: stepDuration
+    });
+
+    console.log('📊 [GTM] step2_complete:', {
+      user_grade: userData.grade,
+      user_semester: userData.semester,
+      step_duration: stepDuration
+    });
+
+    onNext();
+  };
+
+  const handleBack = () => {
+    // 뒤로가기 이벤트 전송
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'step_back',
+      from_step: 'step2',
+      to_step: 'step1'
+    });
+
+    console.log('📊 [GTM] step_back: step2 → step1');
+
+    onBack();
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-50 p-4">
@@ -113,13 +165,13 @@ export function AcademicInfoStep({
           {/* 버튼 그룹 */}
           <div className="grid grid-cols-2 gap-3">
             <button
-              onClick={onBack}
+              onClick={handleBack}
               className="py-4 rounded-lg font-medium transition bg-gray-200 text-gray-700 hover:bg-gray-300"
             >
               이전
             </button>
             <button
-              onClick={onNext}
+              onClick={handleNext}
               disabled={!isValid}
               className={`py-4 rounded-lg font-medium transition ${
                 isValid

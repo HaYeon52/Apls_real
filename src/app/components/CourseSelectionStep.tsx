@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UserData } from "../App";
 import { allCourses } from "../utils/courseData";
 
@@ -15,6 +15,7 @@ export function CourseSelectionStep({
   onNext,
   onBack,
 }: CourseSelectionStepProps) {
+  const [startTime] = useState(Date.now());
   const [selectedCourses, setSelectedCourses] = useState<string[]>(
     userData.completedCourses || []
   );
@@ -30,6 +31,21 @@ export function CourseSelectionStep({
     return courseSemesterNum < currentSemesterNum;
   });
 
+  // 페이지 이탈 감지
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'survey_exit',
+        exit_step: 'step3',
+        time_spent: Math.round((Date.now() - startTime) / 1000)
+      });
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [startTime]);
+
   const toggleCourse = (courseCode: string) => {
     setSelectedCourses((prev) => {
       if (prev.includes(courseCode)) {
@@ -42,7 +58,53 @@ export function CourseSelectionStep({
 
   const handleNext = () => {
     setUserData({ ...userData, completedCourses: selectedCourses });
+
+    const stepDuration = Math.round((Date.now() - startTime) / 1000);
+
+    // 필수 과목 카운트
+    const requiredCount = selectedCourses.filter(code => {
+      const course = allCourses.find(c => c.courseCode === code);
+      return course && (course.category === "교양필수" || course.category === "전공기초(필수)");
+    }).length;
+
+    // 전체 이수 가능 과목 수 대비 이수율 계산
+    const totalAvailableCourses = previousCourses.length;
+    const completionRate = totalAvailableCourses > 0 
+      ? Math.round((selectedCourses.length / totalAvailableCourses) * 100) 
+      : 0;
+
+    // GTM 이벤트 전송
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'step3_complete',
+      completed_courses_count: selectedCourses.length,
+      required_courses_count: requiredCount,
+      completion_rate: `${completionRate}%`,
+      step_duration: stepDuration
+    });
+
+    console.log('📊 [GTM] step3_complete:', {
+      completed_courses_count: selectedCourses.length,
+      required_courses_count: requiredCount,
+      completion_rate: `${completionRate}%`,
+      step_duration: stepDuration
+    });
+
     onNext();
+  };
+
+  const handleBack = () => {
+    // 뒤로가기 이벤트 전송
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'step_back',
+      from_step: 'step3',
+      to_step: 'step2'
+    });
+
+    console.log('📊 [GTM] step_back: step3 → step2');
+
+    onBack();
   };
 
   // 학기별로 그룹화
@@ -154,12 +216,20 @@ export function CourseSelectionStep({
           </div>
 
           {/* 다음 버튼 */}
-          <button
-            onClick={handleNext}
-            className="w-full py-4 rounded-lg font-medium transition bg-blue-600 text-white hover:bg-blue-700"
-          >
-            다음
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={handleBack}
+              className="flex-1 py-4 rounded-lg font-medium transition bg-gray-300 text-gray-700 hover:bg-gray-400"
+            >
+              이전
+            </button>
+            <button
+              onClick={handleNext}
+              className="flex-1 py-4 rounded-lg font-medium transition bg-blue-600 text-white hover:bg-blue-700"
+            >
+              다음
+            </button>
+          </div>
         </div>
 
         <p className="mt-8 text-center text-sm text-gray-500">

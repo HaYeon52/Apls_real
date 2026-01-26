@@ -80,6 +80,14 @@ export default function App() {
     }
   }, []);
 
+  // 설문 시작 시간 저장
+  useEffect(() => {
+    if (step === 1 && !localStorage.getItem('survey_start_time')) {
+      localStorage.setItem('survey_start_time', Date.now().toString());
+      console.log('⏱️ 설문 시작 시간 기록:', new Date().toLocaleTimeString());
+    }
+  }, [step]);
+
   const handleNext = () => {
     // 1학년 1학기면 step 3(들은 수업)를 건너뛰고 step 4로
     if (step === 2 && userData.grade === '1학년' && userData.semester === '1학기') {

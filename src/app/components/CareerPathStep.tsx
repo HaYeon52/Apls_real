@@ -1,4 +1,5 @@
 import { UserData } from "../App";
+import { useEffect, useState } from "react";
 
 interface CareerPathStepProps {
   userData: UserData;
@@ -13,7 +14,23 @@ export function CareerPathStep({
   onNext,
   onBack,
 }: CareerPathStepProps) {
+  const [startTime] = useState(Date.now());
   const careerOptions = ["취업", "창업", "대학원 진학", "계획없음"];
+
+  // 페이지 이탈 감지
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'survey_exit',
+        exit_step: 'step4',
+        time_spent: Math.round((Date.now() - startTime) / 1000)
+      });
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [startTime]);
 
   const toggleCareer = (career: string) => {
     if (userData.careerPath.includes(career)) {
@@ -32,6 +49,43 @@ export function CareerPathStep({
   const getOrderNumber = (career: string) => {
     const index = userData.careerPath.indexOf(career);
     return index !== -1 ? index + 1 : null;
+  };
+
+  const handleNext = () => {
+    const stepDuration = Math.round((Date.now() - startTime) / 1000);
+
+    // GTM 이벤트 전송
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'step4_complete',
+      career_paths: userData.careerPath,
+      career_priority_1: userData.careerPath[0] || null,
+      career_count: userData.careerPath.length,
+      step_duration: stepDuration
+    });
+
+    console.log('📊 [GTM] step4_complete:', {
+      career_paths: userData.careerPath,
+      career_priority_1: userData.careerPath[0] || null,
+      career_count: userData.careerPath.length,
+      step_duration: stepDuration
+    });
+
+    onNext();
+  };
+
+  const handleBack = () => {
+    // 뒤로가기 이벤트 전송
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'step_back',
+      from_step: 'step4',
+      to_step: 'step3'
+    });
+
+    console.log('📊 [GTM] step_back: step4 → step3');
+
+    onBack();
   };
 
   return (
@@ -104,18 +158,26 @@ export function CareerPathStep({
             {userData.careerPath.length}/3 선택됨
           </div>
 
-          {/* 다음 버튼 */}
-          <button
-            onClick={onNext}
-            disabled={userData.careerPath.length === 0}
-            className={`w-full py-4 rounded-lg font-medium transition ${
-              userData.careerPath.length > 0
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-            }`}
-          >
-            다음
-          </button>
+          {/* 버튼 */}
+          <div className="flex gap-3">
+            <button
+              onClick={handleBack}
+              className="flex-1 py-4 rounded-lg font-medium transition bg-gray-300 text-gray-700 hover:bg-gray-400"
+            >
+              이전
+            </button>
+            <button
+              onClick={handleNext}
+              disabled={userData.careerPath.length === 0}
+              className={`flex-1 py-4 rounded-lg font-medium transition ${
+                userData.careerPath.length > 0
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-gray-200 text-gray-400 cursor-not-allowed"
+              }`}
+            >
+              다음
+            </button>
+          </div>
         </div>
 
         <p className="mt-8 text-center text-sm text-gray-500">

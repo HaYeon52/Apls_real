@@ -1,4 +1,5 @@
 import { UserData } from "../App";
+import { useEffect, useState } from "react";
 
 interface InterestAreaStepProps {
   userData: UserData;
@@ -13,6 +14,7 @@ export function InterestAreaStep({
   onNext,
   onBack,
 }: InterestAreaStepProps) {
+  const [startTime] = useState(Date.now());
   const interestOptions = [
     { name: "공정 (생산, 품질)", emoji: "🏭" },
     { name: "물류/SCM", emoji: "📦" },
@@ -20,6 +22,21 @@ export function InterestAreaStep({
     { name: "금융", emoji: "💰" },
     { name: "컨설팅/기획", emoji: "📊" },
   ];
+
+  // 페이지 이탈 감지
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'survey_exit',
+        exit_step: 'step5',
+        time_spent: Math.round((Date.now() - startTime) / 1000)
+      });
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [startTime]);
 
   const toggleInterest = (interest: string) => {
     if (userData.interestArea.includes(interest)) {
@@ -38,6 +55,47 @@ export function InterestAreaStep({
   const getOrderNumber = (interest: string) => {
     const index = userData.interestArea.indexOf(interest);
     return index !== -1 ? index + 1 : null;
+  };
+
+  const handleNext = () => {
+    const stepDuration = Math.round((Date.now() - startTime) / 1000);
+
+    // GTM 이벤트 전송
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'step5_complete',
+      interest_areas: userData.interestArea,
+      interest_priority_1: userData.interestArea[0] || null,
+      interest_priority_2: userData.interestArea[1] || null,
+      interest_priority_3: userData.interestArea[2] || null,
+      interest_count: userData.interestArea.length,
+      step_duration: stepDuration
+    });
+
+    console.log('📊 [GTM] step5_complete:', {
+      interest_areas: userData.interestArea,
+      interest_priority_1: userData.interestArea[0] || null,
+      interest_priority_2: userData.interestArea[1] || null,
+      interest_priority_3: userData.interestArea[2] || null,
+      interest_count: userData.interestArea.length,
+      step_duration: stepDuration
+    });
+
+    onNext();
+  };
+
+  const handleBack = () => {
+    // 뒤로가기 이벤트 전송
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'step_back',
+      from_step: 'step5',
+      to_step: 'step4'
+    });
+
+    console.log('📊 [GTM] step_back: step5 → step4');
+
+    onBack();
   };
 
   return (
@@ -109,18 +167,26 @@ export function InterestAreaStep({
             {userData.interestArea.length}/3 선택됨
           </div>
 
-          {/* 결과 보기 버튼 */}
-          <button
-            onClick={onNext}
-            disabled={userData.interestArea.length === 0}
-            className={`w-full py-4 rounded-lg font-medium transition ${
-              userData.interestArea.length > 0
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-            }`}
-          >
-            결과 보기
-          </button>
+          {/* 버튼 */}
+          <div className="flex gap-3">
+            <button
+              onClick={handleBack}
+              className="flex-1 py-4 rounded-lg font-medium transition bg-gray-300 text-gray-700 hover:bg-gray-400"
+            >
+              이전
+            </button>
+            <button
+              onClick={handleNext}
+              disabled={userData.interestArea.length === 0}
+              className={`flex-1 py-4 rounded-lg font-medium transition ${
+                userData.interestArea.length > 0
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-gray-200 text-gray-400 cursor-not-allowed"
+              }`}
+            >
+              결과 보기
+            </button>
+          </div>
         </div>
 
         <p className="mt-8 text-center text-sm text-gray-500">
