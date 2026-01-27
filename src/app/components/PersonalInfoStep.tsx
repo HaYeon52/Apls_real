@@ -205,7 +205,7 @@ export function PersonalInfoStep({
                     : "border-gray-300 text-gray-700 hover:border-blue-300"
                 }`}
               >
-                카카오톡 ��지방
+                카카오톡 공지방
               </button>
               <button
                 type="button"
