@@ -5,8 +5,10 @@ import { AcademicInfoStep } from "./components/AcademicInfoStep";
 import { CourseSelectionStep } from "./components/CourseSelectionStep";
 import { CareerPathStep } from "./components/CareerPathStep";
 import { InterestAreaStep } from "./components/InterestAreaStep";
+import { DisclaimerScreen } from "./components/DisclaimerScreen";
 import { ResultScreen } from "./components/ResultScreen";
 import { CourseDetailPage } from "./components/CourseDetailPage";
+import { AllCourseTipsPage } from "./components/AllCourseTipsPage";
 import { AdminDashboard } from "./components/AdminDashboard";
 
 // 1. GA4 타입 에러 방지용 (빨간줄 해결)
@@ -38,11 +40,13 @@ interface SelectedCourse {
   category: string;
   credits: string;
   description: string;
+  prerequisites?: string[];
 }
 
 export default function App() {
   const [step, setStep] = useState(0);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [showAllTips, setShowAllTips] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<SelectedCourse | null>(null);
   const [userData, setUserData] = useState<UserData>({
     name: "",
@@ -137,6 +141,10 @@ export default function App() {
     return <AdminDashboard onBack={() => setShowAdmin(false)} />;
   }
 
+  if (showAllTips) {
+    return <AllCourseTipsPage onBack={() => setShowAllTips(false)} />;
+  }
+
   if (selectedCourse) {
     return (
       <CourseDetailPage
@@ -144,6 +152,8 @@ export default function App() {
         courseCategory={selectedCourse.category}
         courseCredits={selectedCourse.credits}
         courseDescription={selectedCourse.description}
+        prerequisites={selectedCourse.prerequisites}
+        completedCourses={userData.completedCourses}
         onBack={handleBackToCourseList}
       />
     );
@@ -203,10 +213,17 @@ export default function App() {
       )}
 
       {step === 6 && (
+        <DisclaimerScreen
+          onConfirm={handleNext}
+        />
+      )}
+
+      {step === 7 && (
         <ResultScreen
           userData={userData}
           onCourseClick={handleCourseClick}
           onRestart={handleRestart}
+          onViewAllTips={() => setShowAllTips(true)}
         />
       )}
     </>

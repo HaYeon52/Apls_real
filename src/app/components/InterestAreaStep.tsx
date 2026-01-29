@@ -21,6 +21,7 @@ export function InterestAreaStep({
     { name: "데이터", emoji: "💻" },
     { name: "금융", emoji: "💰" },
     { name: "컨설팅/기획", emoji: "📊" },
+    { name: "계획 없음", emoji: "❓" },
   ];
 
   // 페이지 이탈 감지
@@ -39,6 +40,34 @@ export function InterestAreaStep({
   }, [startTime]);
 
   const toggleInterest = (interest: string) => {
+    // "계획 없음"을 선택하면 다른 모든 선택 해제
+    if (interest === "계획 없음") {
+      if (userData.interestArea.includes("계획 없음")) {
+        // 이미 선택되어 있으면 해제
+        setUserData({
+          ...userData,
+          interestArea: [],
+        });
+      } else {
+        // 선택되어 있지 않으면 이것만 선택
+        setUserData({
+          ...userData,
+          interestArea: ["계획 없음"],
+        });
+      }
+      return;
+    }
+
+    // 다른 관심분야를 선택할 때 "계획 없음"이 있으면 제거
+    if (userData.interestArea.includes("계획 없음")) {
+      setUserData({
+        ...userData,
+        interestArea: [interest],
+      });
+      return;
+    }
+
+    // 일반적인 토글 로직
     if (userData.interestArea.includes(interest)) {
       setUserData({
         ...userData,
@@ -98,6 +127,9 @@ export function InterestAreaStep({
     onBack();
   };
 
+  // "계획 없음"이 선택되었는지 확인
+  const hasNoPlan = userData.interestArea.includes("계획 없음");
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-50 p-4">
       <div className="max-w-md mx-auto pt-8">
@@ -139,6 +171,7 @@ export function InterestAreaStep({
             {interestOptions.map((interest) => {
               const orderNum = getOrderNumber(interest.name);
               const isSelected = orderNum !== null;
+              const isNoPlanOption = interest.name === "계획 없음";
 
               return (
                 <button
@@ -153,7 +186,7 @@ export function InterestAreaStep({
                 >
                   <span className="text-2xl">{interest.emoji}</span>
                   <span className="flex-1 text-left">{interest.name}</span>
-                  {isSelected && (
+                  {isSelected && !isNoPlanOption && (
                     <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm flex-shrink-0">
                       {orderNum}
                     </span>
@@ -163,9 +196,11 @@ export function InterestAreaStep({
             })}
           </div>
 
-          <div className="text-sm text-gray-500 text-center">
-            {userData.interestArea.length}/3 선택됨
-          </div>
+          {!hasNoPlan && (
+            <div className="text-sm text-gray-500 text-center">
+              {userData.interestArea.length}/3 선택됨
+            </div>
+          )}
 
           {/* 버튼 */}
           <div className="flex gap-3">

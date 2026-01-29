@@ -28,6 +28,12 @@ export function CourseSelectionStep({
   const previousCourses = allCourses.filter((course) => {
     const [grade, sem] = course.semester.split("-");
     const courseSemesterNum = (parseInt(grade) - 1) * 2 + parseInt(sem);
+    
+    // 통합 과목은 수강 완료 체크에서 제외 (개별 과목만 체크)
+    if (course.name === '객체지향프로그래밍 + 데이터구조론') {
+      return false;
+    }
+    
     return courseSemesterNum < currentSemesterNum;
   });
 
@@ -46,24 +52,26 @@ export function CourseSelectionStep({
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [startTime]);
 
-  const toggleCourse = (courseCode: string) => {
+  const toggleCourse = (courseName: string) => {
+    console.log('🔄 토글된 과목:', courseName);
     setSelectedCourses((prev) => {
-      if (prev.includes(courseCode)) {
-        return prev.filter((code) => code !== courseCode);
-      } else {
-        return [...prev, courseCode];
-      }
+      const newList = prev.includes(courseName)
+        ? prev.filter((name) => name !== courseName)
+        : [...prev, courseName];
+      console.log('📝 업데이트된 수강 과목 목록:', newList);
+      return newList;
     });
   };
 
   const handleNext = () => {
+    console.log('✅ 저장되는 수강 과목:', selectedCourses);
     setUserData({ ...userData, completedCourses: selectedCourses });
 
     const stepDuration = Math.round((Date.now() - startTime) / 1000);
 
     // 필수 과목 카운트
-    const requiredCount = selectedCourses.filter(code => {
-      const course = allCourses.find(c => c.courseCode === code);
+    const requiredCount = selectedCourses.filter(name => {
+      const course = allCourses.find(c => c.name === name);
       return course && (course.category === "교양필수" || course.category === "전공기초(필수)");
     }).length;
 
@@ -145,7 +153,7 @@ export function CourseSelectionStep({
           </div>
 
           <h3 className="text-lg font-semibold text-gray-800">
-            들은 수업을 체크하세요
+            수강한 수업을 선택해주세요
           </h3>
         </div>
 
@@ -174,7 +182,7 @@ export function CourseSelectionStep({
                         course.category === "교양필수" ||
                         course.category === "전공기초(필수)";
                       const isSelected = selectedCourses.includes(
-                        course.courseCode
+                        course.name
                       );
 
                       return (
@@ -189,7 +197,7 @@ export function CourseSelectionStep({
                           <input
                             type="checkbox"
                             checked={isSelected}
-                            onChange={() => toggleCourse(course.courseCode)}
+                            onChange={() => toggleCourse(course.name)}
                             className="mt-1 w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 flex-shrink-0"
                           />
                           <div className="flex-1">
@@ -204,7 +212,7 @@ export function CourseSelectionStep({
                               )}
                             </div>
                             <p className="text-xs text-gray-500 mt-1">
-                              {course.category} · {course.credits}
+                              {course.category}
                             </p>
                           </div>
                         </label>

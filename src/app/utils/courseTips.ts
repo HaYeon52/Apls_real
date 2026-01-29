@@ -921,12 +921,22 @@ export const courseTips: Record<string, string[]> = {
   ],
 };
 
-// 과목 이름을 받아서 개요서 반환
+import { allCourses } from './courseData';
+
+// 과목 이름을 받아서 교수님 코멘트 반환
 export function getCourseSyllabus(courseName: string): string {
-  return courseSyllabi[courseName] || '교과목 개요서 정보가 준비 중입니다.';
+  const course = allCourses.find(c => c.name === courseName);
+  if (course?.professorComment) {
+    return course.professorComment;
+  }
+  return courseSyllabi[courseName] || '교수님 코멘트 정보가 준비 중입니다.';
 }
 
-// 과목 이름을 받아서 꿀팁 배열 반환
+// 과목 이름을 받아서 선배 꿀팁 반환
 export function getCourseTips(courseName: string): string[] {
+  const course = allCourses.find(c => c.name === courseName);
+  if (course?.seniorTip) {
+    return [course.seniorTip];
+  }
   return courseTips[courseName] || ['선배의 꿀팁이 준비 중입니다.'];
 }

@@ -160,7 +160,7 @@ export function AcademicInfoStep({
                 </button>
               ))}
             </div>
-          </div>ㅋ
+          </div>
 
           {/* 버튼 그룹 */}
           <div className="grid grid-cols-2 gap-3">

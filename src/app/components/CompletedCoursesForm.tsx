@@ -12,6 +12,8 @@ interface CompletedCoursesFormProps {
 export function CompletedCoursesForm({ userData, setUserData, onNext, onBack }: CompletedCoursesFormProps) {
   const [selectedCourses, setSelectedCourses] = useState<string[]>(userData.completedCourses || []);
 
+  console.log('📚 CompletedCoursesForm 초기화 - 기존 수강과목:', userData.completedCourses);
+
   // 현재 학년-학기 이전의 과목들 필터링
   const currentGrade = parseInt(userData.grade.replace('학년', ''));
   const currentSemester = parseInt(userData.semester.replace('학기', ''));
@@ -27,22 +29,29 @@ export function CompletedCoursesForm({ userData, setUserData, onNext, onBack }: 
       return false;
     }
     
+    // 통합 과목은 수강 완료 체크에서 제외 (개별 과목만 체크)
+    if (course.name === '객체지향프로그래밍 + 데이터구조론') {
+      return false;
+    }
+    
     return courseSemesterNum < currentSemesterNum;
   });
 
-  const toggleCourse = (courseCode: string) => {
+  const toggleCourse = (courseName: string) => {
+    console.log('🔄 토글된 과목:', courseName);
     setSelectedCourses(prev => {
-      if (prev.includes(courseCode)) {
-        return prev.filter(code => code !== courseCode);
-      } else {
-        return [...prev, courseCode];
-      }
+      const newList = prev.includes(courseName)
+        ? prev.filter(name => name !== courseName)
+        : [...prev, courseName];
+      console.log('📝 업데이트된 수강 과목 목록:', newList);
+      return newList;
     });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // 경고 없이 바로 다음으로 진행
+    console.log('✅ 저장되는 수강 과목:', selectedCourses);
     setUserData({ ...userData, completedCourses: selectedCourses });
     onNext();
   };
@@ -60,7 +69,7 @@ export function CompletedCoursesForm({ userData, setUserData, onNext, onBack }: 
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-gray-900 mb-2">들은 수업을 체크해주세요</h3>
+        <h3 className="text-gray-900 mb-2">수강한 수업을 선택해주세요</h3>
         <p className="text-sm text-gray-600">
           {userData.grade} {userData.semester} 이전에 수강한 과목을 모두 선택해주세요.
         </p>
@@ -87,7 +96,7 @@ export function CompletedCoursesForm({ userData, setUserData, onNext, onBack }: 
                   {courses.map((course) => {
                     const isRequired = course.category === '교양필수' || 
                                      course.category === '전공기초(필수)';
-                    const isSelected = selectedCourses.includes(course.courseCode);
+                    const isSelected = selectedCourses.includes(course.name);
 
                     return (
                       <label
@@ -101,7 +110,7 @@ export function CompletedCoursesForm({ userData, setUserData, onNext, onBack }: 
                         <input
                           type="checkbox"
                           checked={isSelected}
-                          onChange={() => toggleCourse(course.courseCode)}
+                          onChange={() => toggleCourse(course.name)}
                           className="mt-1 w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
                         />
                         <div className="flex-1">

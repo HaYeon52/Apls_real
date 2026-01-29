@@ -2,6 +2,13 @@ import { UserData } from "../App";
 import { getRecommendations } from "../utils/recommendations";
 import { getCourseSyllabus, getCourseTips } from "../utils/courseTips";
 import { careerRoadmaps } from "../utils/courseRoadmaps";
+import { allCourses } from "../utils/courseData";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 
 interface RecommendationResultProps {
   userData: UserData;
@@ -29,8 +36,26 @@ export function RecommendationResult({
 }: RecommendationResultProps) {
   const recommendations = getRecommendations(userData);
 
+  // 선수과목 확인 헬퍼 함수
+  const checkPrerequisites = (courseName: string) => {
+    const course = allCourses.find(c => c.name === courseName);
+    if (!course || !course.prerequisites || course.prerequisites.length === 0) {
+      return { hasMissingPrereqs: false, missingPrereqs: [] };
+    }
+
+    const missingPrereqs = course.prerequisites.filter(
+      prereq => !userData.completedCourses.includes(prereq)
+    );
+
+    return {
+      hasMissingPrereqs: missingPrereqs.length > 0,
+      missingPrereqs,
+    };
+  };
+
   return (
-    <div className="space-y-6">
+    <TooltipProvider>
+      <div className="space-y-6">
       {/* Summary */}
       <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6 rounded-xl">
         <h3 className="mb-3">{userData.name}님의 진로 정보</h3>
@@ -144,6 +169,9 @@ export function RecommendationResult({
                   const isRequired = course.category === "전공기초(필수)";
                   const syllabus = getCourseSyllabus(course.name);
                   const tips = getCourseTips(course.name);
+                  
+                  // 선수과목 확인
+                  const { hasMissingPrereqs, missingPrereqs } = checkPrerequisites(course.name);
 
                   // 로드맵 기반 - 어느 관심분야 로드맵에 속하는지 확인
                   const grade = userData.grade.replace('학년', '');
@@ -170,13 +198,21 @@ export function RecommendationResult({
                   return (
                     <div key={index}>
                       <div
-                        onClick={() => onCourseClick({
-                          name: course.name,
-                          category: course.category,
-                          credits: course.credits,
-                          description: course.description,
-                        })}
-                        className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200 cursor-pointer hover:shadow-lg transition-all"
+                        onClick={() => {
+                          const courseDetails = allCourses.find(c => c.name === course.name);
+                          onCourseClick({
+                            name: course.name,
+                            category: course.category,
+                            credits: course.credits,
+                            description: course.description,
+                            prerequisites: courseDetails?.prerequisites,
+                          });
+                        }}
+                        className={`p-4 rounded-lg border cursor-pointer hover:shadow-lg transition-all ${
+                          hasMissingPrereqs 
+                            ? 'bg-gradient-to-r from-orange-50 to-red-50 border-orange-300 ring-2 ring-orange-200' 
+                            : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200'
+                        }`}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
@@ -184,6 +220,29 @@ export function RecommendationResult({
                               <span className="text-gray-900 font-medium text-lg">
                                 {course.name}
                               </span>
+                              {hasMissingPrereqs && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold cursor-help flex items-center gap-1">
+                                      ⚠️ 선수과목 미이수
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent className="max-w-xs bg-orange-600 text-white border-orange-700">
+                                    <div className="space-y-2">
+                                      <p className="font-bold text-sm">⚠️ 경고</p>
+                                      <p className="text-sm">
+                                        다음 선수과목을 수강하지 않았습니다:
+                                      </p>
+                                      <ul className="text-xs list-disc list-inside space-y-1">
+                                        {missingPrereqs.map((prereq, idx) => (
+                                          <li key={idx}>{prereq}</li>
+                                        ))}
+                                      </ul>
+                                      <p className="text-xs mt-2 pt-2 border-t border-orange-500">수강에 어려움이 있거나<br />개인적인 추가 학습이 필요할 수 있습니다.</p>
+                                    </div>
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
                               {isRequired && (
                                 <span className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded font-medium">
                                   필수
@@ -202,32 +261,51 @@ export function RecommendationResult({
                               </span>
                             </div>
 
-                            {/* 근거 */}
+                            {/* 추천 근거 */}
                             <div className="bg-white rounded-lg p-3 mb-2">
                               <p className="text-sm text-blue-900 font-medium mb-1">
                                 💡 추천 근거
                               </p>
-                              <p className="text-sm text-gray-700">
-                                {reasonText}
+                              <p className="text-sm text-gray-700 whitespace-pre-line">
+                                {course.recommendationReason || reasonText}
                               </p>
                             </div>
 
                             {/* 무엇을 배우는가 */}
-                            <div className="bg-white rounded-lg p-3 mb-2">
-                              <p className="text-sm text-blue-900 font-medium mb-1">
-                                📖 무엇을 배우나요?
-                              </p>
-                              <p className="text-sm text-gray-700">
-                                {course.description}
-                              </p>
-                            </div>
-
-                            {/* 클릭 안내 */}
-                            <div className="text-center mt-3 pt-3 border-t border-blue-200">
-                              <p className="text-blue-600 text-sm font-medium">
-                                클릭하여 교과목 개요서 & 선배의 꿀팁 보기 →
-                              </p>
-                            </div>
+                            {course.whatToLearn && (
+                              <div className="bg-white rounded-lg p-3 mb-2">
+                                <p className="text-sm text-green-900 font-medium mb-1">
+                                  📖 무엇을 배우는가
+                                </p>
+                                <p className="text-sm text-gray-700 whitespace-pre-line">
+                                  {course.whatToLearn}
+                                </p>
+                              </div>
+                            )}
+                            
+                            {/* 교수님 코멘트 */}
+                            {course.professorComment && (
+                              <div className="bg-white rounded-lg p-3 mb-2">
+                                <p className="text-sm text-blue-900 font-medium mb-1">
+                                  👨‍🏫 교수님 말씀
+                                </p>
+                                <p className="text-sm text-gray-700 whitespace-pre-line">
+                                  {course.professorComment}
+                                </p>
+                              </div>
+                            )}
+                            
+                            {/* 선배 꿀팁 */}
+                            {course.seniorTip && (
+                              <div className="bg-white rounded-lg p-3 mb-2">
+                                <p className="text-sm text-amber-900 font-medium mb-1">
+                                  🎓 선배 꿀팁
+                                </p>
+                                <p className="text-sm text-gray-700 whitespace-pre-line">
+                                  {course.seniorTip}
+                                </p>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -268,5 +346,6 @@ export function RecommendationResult({
         </button>
       </div>
     </div>
+    </TooltipProvider>
   );
 }

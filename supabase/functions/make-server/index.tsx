@@ -2,10 +2,21 @@ import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
 import * as kv from "./kv_store.tsx";
+
 const app = new Hono();
 
 // Enable logger
 app.use('*', logger(console.log));
+
+// Add error handling middleware
+app.onError((err, c) => {
+  console.error('Global error handler:', err);
+  return c.json({
+    success: false,
+    error: err.message,
+    timestamp: new Date().toISOString()
+  }, 500);
+});
 
 // Enable CORS for all routes and methods
 app.use(

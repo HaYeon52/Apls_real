@@ -1,0 +1,14 @@
+# Supabase configuration file
+# Project ID: kzsksntrwrzkgttowdov
+
+[api]
+enabled = true
+port = 54321
+max_rows = 1000
+
+[functions]
+enabled = true
+
+[functions.make-server]
+verify_jwt = false
+cors_origins = ["*"]

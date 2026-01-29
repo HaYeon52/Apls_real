@@ -11,7 +11,7 @@ interface SWOTAnalysis {
 
 export function generateSWOT(userData: UserData): SWOTAnalysis {
   const completedCourses = allCourses.filter(course => 
-    userData.completedCourses.includes(course.courseCode)
+    userData.completedCourses.includes(course.name)
   );
   
   const strengths: string[] = [];
@@ -40,7 +40,7 @@ export function generateSWOT(userData: UserData): SWOTAnalysis {
   });
 
   const allRequiredCompleted = allRequiredCoursesUpToLastSemester.every(c => 
-    userData.completedCourses.includes(c.courseCode)
+    userData.completedCourses.includes(c.name)
   );
 
   if (allRequiredCompleted && allRequiredCoursesUpToLastSemester.length > 0) {
@@ -78,7 +78,7 @@ export function generateSWOT(userData: UserData): SWOTAnalysis {
   // Weaknesses 분석
   // 1. 필수 과목 중 미이수 체크
   const missedRequired = allRequiredCoursesUpToLastSemester.filter(c => 
-    !userData.completedCourses.includes(c.courseCode)
+    !userData.completedCourses.includes(c.name)
   );
 
   if (missedRequired.length > 0) {
@@ -106,7 +106,7 @@ export function generateSWOT(userData: UserData): SWOTAnalysis {
         
         // 현재 학기보다 이전에 개설되고, 아직 안 들은 과목
         if (courseSemesterNum < currentSemesterNum && 
-            !userData.completedCourses.includes(course.courseCode)) {
+            !userData.completedCourses.includes(course.name)) {
           missedCoreCourses.push(courseName);
         }
       }
