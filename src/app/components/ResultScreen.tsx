@@ -224,13 +224,6 @@ export function ResultScreen({
                   {userData.interestArea.map((area, idx) => `${idx + 1}. ${area}`).join(", ")}
                 </p>
               </div>
-              {/* 디버그 정보 */}
-              <div className="col-span-2 mt-2 pt-2 border-t border-white/30">
-                <span className="opacity-80 text-xs">DEBUG</span>
-                <p className="font-mono text-xs bg-black/20 p-2 rounded mt-1">
-                  p1={userData.interestArea[0] || "없음"} | p2={userData.interestArea[1] || "없음"} | p3={userData.interestArea[2] || "없음"}
-                </p>
-              </div>
             </div>
           </div>
 
