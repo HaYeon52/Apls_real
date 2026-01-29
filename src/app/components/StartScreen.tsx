@@ -1,9 +1,7 @@
 export function StartScreen({ 
-  onStart, 
-  onAdminClick 
+  onStart 
 }: { 
   onStart: () => void;
-  onAdminClick: () => void;
 }) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-50 flex items-center justify-center p-4">
@@ -24,14 +22,6 @@ export function StartScreen({
         <p className="mt-16 text-sm text-gray-500">
           © 2025 한양대학교 산업공학과
         </p>
-
-        {/* 숨겨진 관리자 버튼 */}
-        <button
-          onClick={onAdminClick}
-          className="mt-4 text-xs text-gray-400 hover:text-gray-600 transition"
-        >
-          관리자
-        </button>
       </div>
     </div>
   );

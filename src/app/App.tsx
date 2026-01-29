@@ -9,7 +9,6 @@ import { DisclaimerScreen } from "./components/DisclaimerScreen";
 import { ResultScreen } from "./components/ResultScreen";
 import { CourseDetailPage } from "./components/CourseDetailPage";
 import { AllCourseTipsPage } from "./components/AllCourseTipsPage";
-import { AdminDashboard } from "./components/AdminDashboard";
 
 // 1. GA4 타입 에러 방지용 (빨간줄 해결)
 declare global {
@@ -45,9 +44,10 @@ interface SelectedCourse {
 
 export default function App() {
   const [step, setStep] = useState(0);
-  const [showAdmin, setShowAdmin] = useState(false);
   const [showAllTips, setShowAllTips] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<SelectedCourse | null>(null);
+  const [expandedSemester, setExpandedSemester] = useState<string | null>(null);
+  const [scrollPosition, setScrollPosition] = useState<number>(0);
   const [userData, setUserData] = useState<UserData>({
     name: "",
     studentId: "",
@@ -129,17 +129,19 @@ export default function App() {
     });
   };
 
-  const handleCourseClick = (course: SelectedCourse) => {
+  const handleCourseClick = (course: SelectedCourse, semester?: string) => {
+    // 현재 스크롤 위치와 열린 학기 저장
+    setScrollPosition(window.scrollY);
+    if (semester) {
+      setExpandedSemester(semester);
+    }
     setSelectedCourse(course);
   };
 
   const handleBackToCourseList = () => {
     setSelectedCourse(null);
+    // 스크롤 위치는 ResultScreen의 useEffect에서 복원됨
   };
-
-  if (showAdmin) {
-    return <AdminDashboard onBack={() => setShowAdmin(false)} />;
-  }
 
   if (showAllTips) {
     return <AllCourseTipsPage onBack={() => setShowAllTips(false)} />;
@@ -164,7 +166,6 @@ export default function App() {
       {step === 0 && (
         <StartScreen 
           onStart={() => setStep(1)} 
-          onAdminClick={() => setShowAdmin(true)}
         />
       )}
       
@@ -224,6 +225,9 @@ export default function App() {
           onCourseClick={handleCourseClick}
           onRestart={handleRestart}
           onViewAllTips={() => setShowAllTips(true)}
+          expandedSemester={expandedSemester}
+          scrollPosition={scrollPosition}
+          onExpandedSemesterChange={setExpandedSemester}
         />
       )}
     </>

@@ -2,6 +2,7 @@ import { getCourseSyllabus, getCourseTips } from "../utils/courseTips";
 import { getFollowUpCourses } from "../utils/courseRelationships";
 import { allCourses } from "../utils/courseData";
 import { ArrowLeft } from "lucide-react";
+import { useEffect } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -34,6 +35,11 @@ export function CourseDetailPage({
   
   // 해당 과목 정보 가져오기
   const courseData = allCourses.find(c => c.name === courseName);
+
+  // 페이지 진입 시 맨 위로 스크롤
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // 미이수 선수과목 확인
   console.log('🔍 과목명:', courseName);
