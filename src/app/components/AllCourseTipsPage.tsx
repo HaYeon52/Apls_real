@@ -99,30 +99,41 @@ export function AllCourseTipsPage({ onBack }: AllCourseTipsPageProps) {
                           <span className="text-lg">💡</span>
                           <span>추천 근거</span>
                         </h4>
-                        <div className="bg-white rounded-lg p-4 border border-blue-100">
-                          <div className="text-gray-700 whitespace-pre-line space-y-2">
+                        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-5 border-2 border-blue-200">
+                          <div className="space-y-4">
                             {course.recommendationReason
                               .split("\n")
+                              .filter((line) => line.trim())
                               .map((line, idx) => {
                                 const trimmedLine = line.trim();
                                 if (trimmedLine.startsWith("•")) {
+                                  const content = trimmedLine.substring(1).trim();
+                                  const colonIndex = content.indexOf(":");
+                                  if (colonIndex > 0) {
+                                    const label = content.substring(0, colonIndex).trim();
+                                    const text = content.substring(colonIndex + 1).trim();
+                                    return (
+                                      <div key={idx}>
+                                        <div className="font-semibold text-blue-800 text-base mb-1">
+                                          {label}
+                                        </div>
+                                        <p className="text-gray-700 text-base leading-relaxed">
+                                          {text}
+                                        </p>
+                                      </div>
+                                    );
+                                  }
                                   return (
-                                    <div
-                                      key={idx}
-                                      className="flex items-start gap-2"
-                                    >
-                                      <span className="text-blue-600 mt-1">
-                                        •
-                                      </span>
-                                      <span className="flex-1">
-                                        {trimmedLine.substring(1).trim()}
-                                      </span>
-                                    </div>
+                                    <p key={idx} className="text-gray-700 text-base leading-relaxed">
+                                      {content}
+                                    </p>
                                   );
                                 }
-                                return trimmedLine ? (
-                                  <p key={idx}>{trimmedLine}</p>
-                                ) : null;
+                                return (
+                                  <p key={idx} className="text-gray-700 text-base leading-relaxed">
+                                    {trimmedLine}
+                                  </p>
+                                );
                               })}
                           </div>
                         </div>
@@ -136,43 +147,46 @@ export function AllCourseTipsPage({ onBack }: AllCourseTipsPageProps) {
                           <span className="text-lg">📚</span>
                           <span>무엇을 배우는가</span>
                         </h4>
-                        <div className="bg-white rounded-lg p-4 border border-green-100">
-                          <div className="text-gray-700 whitespace-pre-line space-y-2">
-                            {course.whatToLearn.split("\n").map((line, idx) => {
+                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-5 border-2 border-green-200">
+                          <div className="space-y-4">
+                            {course.whatToLearn.split("\n").filter((line) => line.trim()).map((line, idx) => {
                               const trimmedLine = line.trim();
                               if (trimmedLine.startsWith("•")) {
+                                const content = trimmedLine.substring(1).trim();
+                                const colonIndex = content.indexOf(":");
+                                if (colonIndex > 0) {
+                                  const label = content.substring(0, colonIndex).trim();
+                                  const text = content.substring(colonIndex + 1).trim();
+                                  return (
+                                    <div key={idx}>
+                                      <div className="font-semibold text-green-800 text-base mb-1">
+                                        {label}
+                                      </div>
+                                      <p className="text-gray-700 text-base leading-relaxed">
+                                        {text}
+                                      </p>
+                                    </div>
+                                  );
+                                }
                                 return (
-                                  <div
-                                    key={idx}
-                                    className="flex items-start gap-2"
-                                  >
-                                    <span className="text-green-600 mt-1">
-                                      •
-                                    </span>
-                                    <span className="flex-1">
-                                      {trimmedLine.substring(1).trim()}
-                                    </span>
-                                  </div>
+                                  <p key={idx} className="text-gray-700 text-base leading-relaxed">
+                                    {content}
+                                  </p>
                                 );
                               }
                               if (trimmedLine.startsWith("◦")) {
+                                const content = trimmedLine.substring(1).trim();
                                 return (
-                                  <div
-                                    key={idx}
-                                    className="flex items-start gap-2 ml-4"
-                                  >
-                                    <span className="text-green-500 mt-1">
-                                      ◦
-                                    </span>
-                                    <span className="flex-1">
-                                      {trimmedLine.substring(1).trim()}
-                                    </span>
-                                  </div>
+                                  <p key={idx} className="text-gray-700 text-base leading-relaxed ml-4">
+                                    {content}
+                                  </p>
                                 );
                               }
-                              return trimmedLine ? (
-                                <p key={idx}>{trimmedLine}</p>
-                              ) : null;
+                              return (
+                                <p key={idx} className="text-gray-700 text-base leading-relaxed">
+                                  {trimmedLine}
+                                </p>
+                              );
                             })}
                           </div>
                         </div>
@@ -186,30 +200,41 @@ export function AllCourseTipsPage({ onBack }: AllCourseTipsPageProps) {
                           <span className="text-lg">👨‍🏫</span>
                           <span>교수님 코멘트</span>
                         </h4>
-                        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border-2 border-blue-200">
-                          <div className="text-gray-700 whitespace-pre-line space-y-2">
+                        <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-lg p-5 border-2 border-purple-200">
+                          <div className="space-y-4">
                             {course.professorComment
                               .split("\n")
+                              .filter((line) => line.trim())
                               .map((line, idx) => {
                                 const trimmedLine = line.trim();
                                 if (trimmedLine.startsWith("•")) {
+                                  const content = trimmedLine.substring(1).trim();
+                                  const colonIndex = content.indexOf(":");
+                                  if (colonIndex > 0) {
+                                    const label = content.substring(0, colonIndex).trim();
+                                    const text = content.substring(colonIndex + 1).trim();
+                                    return (
+                                      <div key={idx}>
+                                        <div className="font-semibold text-purple-800 text-base mb-1">
+                                          {label}
+                                        </div>
+                                        <p className="text-gray-700 text-base leading-relaxed">
+                                          {text}
+                                        </p>
+                                      </div>
+                                    );
+                                  }
                                   return (
-                                    <div
-                                      key={idx}
-                                      className="flex items-start gap-2"
-                                    >
-                                      <span className="text-blue-600 mt-1">
-                                        •
-                                      </span>
-                                      <span className="flex-1">
-                                        {trimmedLine.substring(1).trim()}
-                                      </span>
-                                    </div>
+                                    <p key={idx} className="text-gray-700 text-base leading-relaxed">
+                                      {content}
+                                    </p>
                                   );
                                 }
-                                return trimmedLine ? (
-                                  <p key={idx}>{trimmedLine}</p>
-                                ) : null;
+                                return (
+                                  <p key={idx} className="text-gray-700 text-base leading-relaxed">
+                                    {trimmedLine}
+                                  </p>
+                                );
                               })}
                           </div>
                         </div>
@@ -223,29 +248,107 @@ export function AllCourseTipsPage({ onBack }: AllCourseTipsPageProps) {
                           <span className="text-lg">🎓</span>
                           <span>선배 꿀팁</span>
                         </h4>
-                        <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg p-4 border-2 border-amber-200">
-                          <div className="text-gray-700 whitespace-pre-line space-y-2">
-                            {course.seniorTip.split("\n").map((line, idx) => {
-                              const trimmedLine = line.trim();
-                              if (trimmedLine.startsWith("•")) {
-                                return (
-                                  <div
-                                    key={idx}
-                                    className="flex items-start gap-2"
-                                  >
-                                    <span className="text-amber-600 mt-1">
-                                      •
-                                    </span>
-                                    <span className="flex-1">
-                                      {trimmedLine.substring(1).trim()}
-                                    </span>
-                                  </div>
-                                );
-                              }
-                              return trimmedLine ? (
-                                <p key={idx}>{trimmedLine}</p>
-                              ) : null;
-                            })}
+                        <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg p-5 border-2 border-amber-200">
+                          <div>
+                            {(() => {
+                              const lines = course.seniorTip.split("\n").filter(line => line.trim());
+                              const sections: { type: 'section' | 'regular', title?: string, items: string[] }[] = [];
+                              let currentSection: { type: 'section' | 'regular', title?: string, items: string[] } | null = null;
+                              
+                              lines.forEach(line => {
+                                const trimmed = line.trim();
+                                
+                                // [이론] 또는 [실험] 섹션 감지
+                                if (trimmed.startsWith('[') && trimmed.includes(']')) {
+                                  if (currentSection) sections.push(currentSection);
+                                  const title = trimmed.substring(1, trimmed.indexOf(']'));
+                                  currentSection = { type: 'section', title, items: [] };
+                                } else if (trimmed.startsWith('•')) {
+                                  const content = trimmed.substring(1).trim();
+                                  if (currentSection && currentSection.type === 'section') {
+                                    currentSection.items.push(content);
+                                  } else {
+                                    if (currentSection) sections.push(currentSection);
+                                    currentSection = { type: 'regular', items: [content] };
+                                  }
+                                } else if (trimmed) {
+                                  // 일반 텍스트
+                                  if (currentSection && currentSection.type === 'section') {
+                                    currentSection.items.push(trimmed);
+                                  } else {
+                                    if (currentSection) sections.push(currentSection);
+                                    currentSection = { type: 'regular', items: [trimmed] };
+                                  }
+                                }
+                              });
+                              
+                              if (currentSection) sections.push(currentSection);
+                              
+                              return sections.map((section, sectionIdx) => {
+                                if (section.type === 'section') {
+                                  // [이론] 또는 [실험] 섹션
+                                  return (
+                                    <div key={sectionIdx} className={sectionIdx > 0 ? "mt-6" : ""}>
+                                      <div className="font-bold text-amber-900 text-lg mb-4 flex items-center gap-2">
+                                        📌 {section.title}
+                                      </div>
+                                      <div className="space-y-4">
+                                        {section.items.map((item, itemIdx) => {
+                                          const colonIndex = item.indexOf(':');
+                                          if (colonIndex > 0) {
+                                            const label = item.substring(0, colonIndex).trim();
+                                            const text = item.substring(colonIndex + 1).trim();
+                                            return (
+                                              <div key={itemIdx}>
+                                                <div className="font-semibold text-amber-800 text-base mb-1">
+                                                  {label}
+                                                </div>
+                                                <p className="text-gray-700 text-base leading-relaxed">
+                                                  {text}
+                                                </p>
+                                              </div>
+                                            );
+                                          }
+                                          return (
+                                            <p key={itemIdx} className="text-gray-700 text-base leading-relaxed">
+                                              {item}
+                                            </p>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  );
+                                } else {
+                                  // 일반 bullet 항목들
+                                  return section.items.map((item, itemIdx) => {
+                                    const colonIndex = item.indexOf(':');
+                                    const isFirst = sectionIdx === 0 && itemIdx === 0;
+                                    
+                                    if (colonIndex > 0) {
+                                      const label = item.substring(0, colonIndex).trim();
+                                      const text = item.substring(colonIndex + 1).trim();
+                                      return (
+                                        <div key={`${sectionIdx}-${itemIdx}`} className={!isFirst ? "mt-4" : ""}>
+                                          <div className="font-semibold text-amber-800 text-base mb-1">
+                                            {label}
+                                          </div>
+                                          <p className="text-gray-700 text-base leading-relaxed">
+                                            {text}
+                                          </p>
+                                        </div>
+                                      );
+                                    }
+                                    return (
+                                      <div key={`${sectionIdx}-${itemIdx}`} className={!isFirst ? "mt-4" : ""}>
+                                        <p className="text-gray-700 text-base leading-relaxed">
+                                          {item}
+                                        </p>
+                                      </div>
+                                    );
+                                  });
+                                }
+                              });
+                            })()}
                           </div>
                         </div>
                       </div>

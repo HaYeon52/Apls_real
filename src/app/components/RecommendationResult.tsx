@@ -3,6 +3,8 @@ import { getRecommendations } from "../utils/recommendations";
 import { getCourseSyllabus, getCourseTips } from "../utils/courseTips";
 import { careerRoadmaps } from "../utils/courseRoadmaps";
 import { allCourses } from "../utils/courseData";
+import { useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -35,6 +37,7 @@ export function RecommendationResult({
   onCourseClick,
 }: RecommendationResultProps) {
   const recommendations = getRecommendations(userData);
+  const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
 
   // 선수과목 확인 헬퍼 함수
   const checkPrerequisites = (courseName: string) => {
@@ -173,57 +176,41 @@ export function RecommendationResult({
                   // 선수과목 확인
                   const { hasMissingPrereqs, missingPrereqs } = checkPrerequisites(course.name);
 
-                  // 로드맵 기반 - 어느 관심분야 로드맵에 속하는지 확인
-                  const grade = userData.grade.replace('학년', '');
-                  const semester = userData.semester.replace('학기', '');
-                  const currentSemester = `${grade}-${semester}`;
-                  const relevantInterests = userData.interestArea.filter((area) => {
-                    const roadmap = careerRoadmaps[area];
-                    if (!roadmap || !roadmap[currentSemester]) return false;
-                    return roadmap[currentSemester].includes(course.name);
-                  });
-
-                  // 추천 근거 텍스트 생성
-                  let reasonText = "";
-                  if (isRequired) {
-                    reasonText = "필수 과목입니다. 반드시 수강해야 합니다.";
-                  } else if (relevantInterests.length > 0) {
-                    const interestText = relevantInterests.join(", ");
-                    const areaWord = relevantInterests.length === 1 ? "분야로" : "분야들로";
-                    reasonText = `${userData.name}님의 관심분야 ${interestText} ${areaWord} 가기 위해서 들어야 하는 과목입니다.`;
-                  } else {
-                    reasonText = `산업공학 전공 역량을 키우기 위해 추천하는 과목입니다.`;
-                  }
+                  const isExpanded = expandedCourse === course.name;
 
                   return (
-                    <div key={index}>
-                      <div
-                        onClick={() => {
-                          const courseDetails = allCourses.find(c => c.name === course.name);
-                          onCourseClick({
-                            name: course.name,
-                            category: course.category,
-                            credits: course.credits,
-                            description: course.description,
-                            prerequisites: courseDetails?.prerequisites,
-                          });
-                        }}
-                        className={`p-4 rounded-lg border cursor-pointer hover:shadow-lg transition-all ${
-                          hasMissingPrereqs 
-                            ? 'bg-gradient-to-r from-orange-50 to-red-50 border-orange-300 ring-2 ring-orange-200' 
-                            : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200'
-                        }`}
+                    <div
+                      key={index}
+                      className={`bg-white rounded-xl shadow-md overflow-hidden border ${
+                        hasMissingPrereqs 
+                          ? 'border-orange-300 ring-2 ring-orange-200' 
+                          : 'border-gray-200'
+                      }`}
+                    >
+                      {/* 과목명 버튼 */}
+                      <button
+                        onClick={() => setExpandedCourse(isExpanded ? null : course.name)}
+                        className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition"
                       >
-                        <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3 flex-1 text-left">
+                          <div className="flex-shrink-0">
+                            <div className={`w-10 h-10 ${
+                              hasMissingPrereqs 
+                                ? 'bg-gradient-to-br from-orange-500 to-red-600' 
+                                : 'bg-gradient-to-br from-blue-500 to-indigo-600'
+                            } rounded-full flex items-center justify-center text-white font-bold text-sm`}>
+                              {course.semester.split('-')[0]}
+                            </div>
+                          </div>
                           <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2 flex-wrap">
-                              <span className="text-gray-900 font-medium text-lg">
+                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                              <h3 className="font-bold text-gray-900 text-lg">
                                 {course.name}
-                              </span>
+                              </h3>
                               {hasMissingPrereqs && (
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold cursor-help flex items-center gap-1">
+                                    <span className="bg-orange-500 text-white px-2 py-0.5 rounded-full text-xs font-bold cursor-help flex items-center gap-1">
                                       ⚠️ 선수과목 미이수
                                     </span>
                                   </TooltipTrigger>
@@ -244,71 +231,305 @@ export function RecommendationResult({
                                 </Tooltip>
                               )}
                               {isRequired && (
-                                <span className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded font-medium">
+                                <span className="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded font-medium">
                                   필수
                                 </span>
                               )}
                               {!isRequired && course.score >= 0.8 && (
-                                <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 rounded font-medium">
+                                <span className="bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded font-medium">
                                   강력 추천
                                 </span>
                               )}
-                              <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded">
+                            </div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="text-sm text-gray-500">
                                 {course.category}
-                              </span>
-                              <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">
+                              </p>
+                              <span className="text-gray-300">•</span>
+                              <p className="text-sm text-gray-500">
                                 {course.credits}
-                              </span>
-                            </div>
-
-                            {/* 추천 근거 */}
-                            <div className="bg-white rounded-lg p-3 mb-2">
-                              <p className="text-sm text-blue-900 font-medium mb-1">
-                                💡 추천 근거
-                              </p>
-                              <p className="text-sm text-gray-700 whitespace-pre-line">
-                                {course.recommendationReason || reasonText}
                               </p>
                             </div>
-
-                            {/* 무엇을 배우는가 */}
-                            {course.whatToLearn && (
-                              <div className="bg-white rounded-lg p-3 mb-2">
-                                <p className="text-sm text-green-900 font-medium mb-1">
-                                  📖 무엇을 배우는가
-                                </p>
-                                <p className="text-sm text-gray-700 whitespace-pre-line">
-                                  {course.whatToLearn}
-                                </p>
-                              </div>
-                            )}
-                            
-                            {/* 교수님 코멘트 */}
-                            {course.professorComment && (
-                              <div className="bg-white rounded-lg p-3 mb-2">
-                                <p className="text-sm text-blue-900 font-medium mb-1">
-                                  👨‍🏫 교수님 말씀
-                                </p>
-                                <p className="text-sm text-gray-700 whitespace-pre-line">
-                                  {course.professorComment}
-                                </p>
-                              </div>
-                            )}
-                            
-                            {/* 선배 꿀팁 */}
-                            {course.seniorTip && (
-                              <div className="bg-white rounded-lg p-3 mb-2">
-                                <p className="text-sm text-amber-900 font-medium mb-1">
-                                  🎓 선배 꿀팁
-                                </p>
-                                <p className="text-sm text-gray-700 whitespace-pre-line">
-                                  {course.seniorTip}
-                                </p>
-                              </div>
-                            )}
                           </div>
                         </div>
-                      </div>
+                        <div className="flex-shrink-0">
+                          {isExpanded ? (
+                            <ChevronUp className="text-blue-600" size={24} />
+                          ) : (
+                            <ChevronDown className="text-gray-400" size={24} />
+                          )}
+                        </div>
+                      </button>
+
+                      {/* 확장된 내용 */}
+                      {isExpanded && (
+                        <div className="border-t border-gray-200 bg-gray-50 p-6 space-y-6">
+                          {/* 추천 근거 */}
+                          {course.recommendationReason && (
+                            <div>
+                              <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                <span className="text-lg">💡</span>
+                                <span>추천 근거</span>
+                              </h4>
+                              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-5 border-2 border-blue-200">
+                                <div className="space-y-4">
+                                  {course.recommendationReason
+                                    .split("\n")
+                                    .filter((line) => line.trim())
+                                    .map((line, idx) => {
+                                      const trimmedLine = line.trim();
+                                      if (trimmedLine.startsWith("•")) {
+                                        const content = trimmedLine.substring(1).trim();
+                                        const colonIndex = content.indexOf(":");
+                                        if (colonIndex > 0) {
+                                          const label = content.substring(0, colonIndex).trim();
+                                          const text = content.substring(colonIndex + 1).trim();
+                                          return (
+                                            <div key={idx}>
+                                              <div className="font-semibold text-blue-800 text-base mb-1">
+                                                {label}
+                                              </div>
+                                              <p className="text-gray-700 text-base leading-relaxed">
+                                                {text}
+                                              </p>
+                                            </div>
+                                          );
+                                        }
+                                        return (
+                                          <p key={idx} className="text-gray-700 text-base leading-relaxed">
+                                            {content}
+                                          </p>
+                                        );
+                                      }
+                                      return (
+                                        <p key={idx} className="text-gray-700 text-base leading-relaxed">
+                                          {trimmedLine}
+                                        </p>
+                                      );
+                                    })}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 무엇을 배우는가 */}
+                          {course.whatToLearn && (
+                            <div>
+                              <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                <span className="text-lg">📚</span>
+                                <span>무엇을 배우는가</span>
+                              </h4>
+                              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-5 border-2 border-green-200">
+                                <div className="space-y-4">
+                                  {course.whatToLearn
+                                    .split("\n")
+                                    .filter((line) => line.trim())
+                                    .map((line, idx) => {
+                                      const trimmedLine = line.trim();
+                                      if (trimmedLine.startsWith("•")) {
+                                        const content = trimmedLine.substring(1).trim();
+                                        const colonIndex = content.indexOf(":");
+                                        if (colonIndex > 0) {
+                                          const label = content.substring(0, colonIndex).trim();
+                                          const text = content.substring(colonIndex + 1).trim();
+                                          return (
+                                            <div key={idx}>
+                                              <div className="font-semibold text-green-800 text-base mb-1">
+                                                {label}
+                                              </div>
+                                              <p className="text-gray-700 text-base leading-relaxed">
+                                                {text}
+                                              </p>
+                                            </div>
+                                          );
+                                        }
+                                        return (
+                                          <p key={idx} className="text-gray-700 text-base leading-relaxed">
+                                            {content}
+                                          </p>
+                                        );
+                                      }
+                                      if (trimmedLine.startsWith("◦")) {
+                                        const content = trimmedLine.substring(1).trim();
+                                        return (
+                                          <p key={idx} className="text-gray-700 text-base leading-relaxed ml-4">
+                                            {content}
+                                          </p>
+                                        );
+                                      }
+                                      return (
+                                        <p key={idx} className="text-gray-700 text-base leading-relaxed">
+                                          {trimmedLine}
+                                        </p>
+                                      );
+                                    })}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* 교수님 코멘트 */}
+                          {course.professorComment && (
+                            <div>
+                              <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                <span className="text-lg">👨‍🏫</span>
+                                <span>교수님 코멘트</span>
+                              </h4>
+                              <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-lg p-5 border-2 border-purple-200">
+                                <div className="space-y-4">
+                                  {course.professorComment
+                                    .split("\n")
+                                    .filter((line) => line.trim())
+                                    .map((line, idx) => {
+                                      const trimmedLine = line.trim();
+                                      if (trimmedLine.startsWith("•")) {
+                                        const content = trimmedLine.substring(1).trim();
+                                        const colonIndex = content.indexOf(":");
+                                        if (colonIndex > 0) {
+                                          const label = content.substring(0, colonIndex).trim();
+                                          const text = content.substring(colonIndex + 1).trim();
+                                          return (
+                                            <div key={idx}>
+                                              <div className="font-semibold text-purple-800 text-base mb-1">
+                                                {label}
+                                              </div>
+                                              <p className="text-gray-700 text-base leading-relaxed">
+                                                {text}
+                                              </p>
+                                            </div>
+                                          );
+                                        }
+                                        return (
+                                          <p key={idx} className="text-gray-700 text-base leading-relaxed">
+                                            {content}
+                                          </p>
+                                        );
+                                      }
+                                      return (
+                                        <p key={idx} className="text-gray-700 text-base leading-relaxed">
+                                          {trimmedLine}
+                                        </p>
+                                      );
+                                    })}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* 선배 꿀팁 */}
+                          {course.seniorTip && (
+                            <div>
+                              <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                <span className="text-lg">🎓</span>
+                                <span>선배 꿀팁</span>
+                              </h4>
+                              <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg p-5 border-2 border-amber-200">
+                                <div>
+                                  {(() => {
+                                    const lines = course.seniorTip.split('\n').filter(line => line.trim());
+                                    const sections: { type: 'section' | 'regular', title?: string, items: string[] }[] = [];
+                                    let currentSection: { type: 'section' | 'regular', title?: string, items: string[] } | null = null;
+                                    
+                                    lines.forEach(line => {
+                                      const trimmed = line.trim();
+                                      
+                                      // [이론] 또는 [실험] 섹션 감지
+                                      if (trimmed.startsWith('[') && trimmed.includes(']')) {
+                                        if (currentSection) sections.push(currentSection);
+                                        const title = trimmed.substring(1, trimmed.indexOf(']'));
+                                        currentSection = { type: 'section', title, items: [] };
+                                      } else if (trimmed.startsWith('•')) {
+                                        const content = trimmed.substring(1).trim();
+                                        if (currentSection && currentSection.type === 'section') {
+                                          currentSection.items.push(content);
+                                        } else {
+                                          if (currentSection) sections.push(currentSection);
+                                          currentSection = { type: 'regular', items: [content] };
+                                        }
+                                      } else if (trimmed) {
+                                        // 일반 텍스트
+                                        if (currentSection && currentSection.type === 'section') {
+                                          currentSection.items.push(trimmed);
+                                        } else {
+                                          if (currentSection) sections.push(currentSection);
+                                          currentSection = { type: 'regular', items: [trimmed] };
+                                        }
+                                      }
+                                    });
+                                    
+                                    if (currentSection) sections.push(currentSection);
+                                    
+                                    return sections.map((section, sectionIdx) => {
+                                      if (section.type === 'section') {
+                                        // [이론] 또는 [실험] 섹션
+                                        return (
+                                          <div key={sectionIdx} className={sectionIdx > 0 ? "mt-6" : ""}>
+                                            <div className="font-bold text-amber-900 text-lg mb-4 flex items-center gap-2">
+                                              📌 {section.title}
+                                            </div>
+                                            <div className="space-y-4">
+                                              {section.items.map((item, itemIdx) => {
+                                                const colonIndex = item.indexOf(':');
+                                                if (colonIndex > 0) {
+                                                  const label = item.substring(0, colonIndex).trim();
+                                                  const text = item.substring(colonIndex + 1).trim();
+                                                  return (
+                                                    <div key={itemIdx}>
+                                                      <div className="font-semibold text-amber-800 text-base mb-1">
+                                                        {label}
+                                                      </div>
+                                                      <p className="text-gray-700 text-base leading-relaxed">
+                                                        {text}
+                                                      </p>
+                                                    </div>
+                                                  );
+                                                }
+                                                return (
+                                                  <p key={itemIdx} className="text-gray-700 text-base leading-relaxed">
+                                                    {item}
+                                                  </p>
+                                                );
+                                              })}
+                                            </div>
+                                          </div>
+                                        );
+                                      } else {
+                                        // 일반 bullet 항목들
+                                        return section.items.map((item, itemIdx) => {
+                                          const colonIndex = item.indexOf(':');
+                                          const isFirst = sectionIdx === 0 && itemIdx === 0;
+                                          
+                                          if (colonIndex > 0) {
+                                            const label = item.substring(0, colonIndex).trim();
+                                            const text = item.substring(colonIndex + 1).trim();
+                                            return (
+                                              <div key={`${sectionIdx}-${itemIdx}`} className={!isFirst ? "mt-4" : ""}>
+                                                <div className="font-semibold text-amber-800 text-base mb-1">
+                                                  {label}
+                                                </div>
+                                                <p className="text-gray-700 text-base leading-relaxed">
+                                                  {text}
+                                                </p>
+                                              </div>
+                                            );
+                                          }
+                                          return (
+                                            <div key={`${sectionIdx}-${itemIdx}`} className={!isFirst ? "mt-4" : ""}>
+                                              <p className="text-gray-700 text-base leading-relaxed">
+                                                {item}
+                                              </p>
+                                            </div>
+                                          );
+                                        });
+                                      }
+                                    });
+                                  })()}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 },
