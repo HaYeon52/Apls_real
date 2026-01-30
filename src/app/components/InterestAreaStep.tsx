@@ -73,7 +73,7 @@ export function InterestAreaStep({
         ...userData,
         interestArea: userData.interestArea.filter((i) => i !== interest),
       });
-    } else if (userData.interestArea.length < 3) {
+    } else if (userData.interestArea.length < 2) {
       setUserData({
         ...userData,
         interestArea: [...userData.interestArea, interest],
@@ -155,11 +155,11 @@ export function InterestAreaStep({
             ))}
           </div>
 
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">
+          <h3 className="text-lg font-bold text-gray-900 mb-2">
             관심 분야를 선택하세요
           </h3>
           <p className="text-sm text-gray-600 mb-4">
-            관심 있는 분야를 최대 3개까지 선택하세요.
+            관심 있는 분야를 최대 2개까지 선택하세요.
             <br />
             (순서대로 우선순위가 반영됩니다)
           </p>
@@ -198,7 +198,7 @@ export function InterestAreaStep({
 
           {!hasNoPlan && (
             <div className="text-sm text-gray-500 text-center">
-              {userData.interestArea.length}/3 선택됨
+              {userData.interestArea.length}/2 선택됨
             </div>
           )}
 

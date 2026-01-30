@@ -9,6 +9,7 @@ import './styles/theme.css'
 // Supabase 쿠키 에러 완전 억제
 const originalError = console.error;
 const originalWarn = console.warn;
+const originalLog = console.log;
 
 console.error = (...args: any[]) => {
   const errorMessage = args[0]?.toString() || '';
@@ -44,6 +45,20 @@ console.warn = (...args: any[]) => {
     return;
   }
   originalWarn.apply(console, args);
+};
+
+console.log = (...args: any[]) => {
+  const logMessage = args[0]?.toString() || '';
+  // Supabase 쿠키 관련 로그도 무시
+  if (
+    logMessage.includes('Unable to update session cookie') ||
+    logMessage.includes('Unable to set cookie') ||
+    logMessage.includes('session cookie') ||
+    logMessage.includes('cookie')
+  ) {
+    return;
+  }
+  originalLog.apply(console, args);
 };
 
 // 브라우저 캐시 및 서비스 워커 초기화

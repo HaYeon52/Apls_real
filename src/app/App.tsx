@@ -47,6 +47,7 @@ export default function App() {
   const [showAllTips, setShowAllTips] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<SelectedCourse | null>(null);
   const [expandedSemester, setExpandedSemester] = useState<string | null>(null);
+  const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
   const [scrollPosition, setScrollPosition] = useState<number>(0);
   const [userData, setUserData] = useState<UserData>({
     name: "",
@@ -236,8 +237,10 @@ export default function App() {
           onRestart={handleRestart}
           onViewAllTips={() => setShowAllTips(true)}
           expandedSemester={expandedSemester}
+          expandedCourse={expandedCourse}
           scrollPosition={scrollPosition}
           onExpandedSemesterChange={setExpandedSemester}
+          onExpandedCourseChange={setExpandedCourse}
         />
       )}
     </>

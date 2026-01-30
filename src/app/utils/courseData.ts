@@ -31,7 +31,7 @@ export const allCourses: Course[] = [
     name: '미분적분학1', 
     courseCode: 'GEN2052', 
     category: '전공기초(필수)', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '1-1', 
     lectureHours: 3, 
     labHours: 0, 
@@ -45,7 +45,7 @@ export const allCourses: Course[] = [
     name: '일반물리학및실험1', 
     courseCode: 'CUL3011', 
     category: '전공기초(필수)', 
-    credits: '4.00-5.00', 
+    credits: '4.00', 
     semester: '1-1', 
     lectureHours: 3, 
     labHours: 2, 
@@ -64,7 +64,7 @@ export const allCourses: Course[] = [
     name: '일반화학및실험1', 
     courseCode: 'CHM1005', 
     category: '전공기초(필수)', 
-    credits: '4.00-5.00', 
+    credits: '4.00', 
     semester: '1-1', 
     lectureHours: 3, 
     labHours: 2, 
@@ -85,7 +85,7 @@ export const allCourses: Course[] = [
     name: '공학입문설계', 
     courseCode: 'COE2022', 
     category: '전공핵심', 
-    credits: '3.00-4.00', 
+    credits: '3.00', 
     semester: '1-2', 
     lectureHours: 2, 
     labHours: 2, 
@@ -103,7 +103,7 @@ export const allCourses: Course[] = [
     name: '미분적분학2', 
     courseCode: 'GEN2053', 
     category: '전공기초(필수)', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '1-2', 
     lectureHours: 3, 
     labHours: 0, 
@@ -116,7 +116,7 @@ export const allCourses: Course[] = [
     name: '산업공학개론', 
     courseCode: 'INE1001', 
     category: '전공핵심', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '1-2', 
     lectureHours: 3, 
     labHours: 0, 
@@ -147,7 +147,7 @@ export const allCourses: Course[] = [
     name: '산업인공지능시스템응용', 
     courseCode: 'INE1017', 
     category: '전공핵심', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '1-2', 
     lectureHours: 3, 
     labHours: 0, 
@@ -174,7 +174,7 @@ export const allCourses: Course[] = [
     name: '일반물리학및실험2', 
     courseCode: 'CUL3012', 
     category: '전공기초(필수)', 
-    credits: '3.00-4.00', 
+    credits: '3.00', 
     semester: '1-2', 
     lectureHours: 2, 
     labHours: 2, 
@@ -193,7 +193,7 @@ export const allCourses: Course[] = [
     name: '일반화학및실험2', 
     courseCode: 'CHM1002', 
     category: '전공기초(필수)', 
-    credits: '3.00-4.00', 
+    credits: '3.00', 
     semester: '1-2', 
     lectureHours: 2, 
     labHours: 2, 
@@ -214,7 +214,7 @@ export const allCourses: Course[] = [
     name: '객체지향프로그래밍', 
     courseCode: 'COM2018', 
     category: '전공핵심', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '2-1', 
     lectureHours: 3, 
     labHours: 0, 
@@ -234,7 +234,7 @@ export const allCourses: Course[] = [
     name: '공업수학1', 
     courseCode: 'COE3051', 
     category: '전공기초(필수)', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '2-1', 
     lectureHours: 3, 
     labHours: 0, 
@@ -248,7 +248,7 @@ export const allCourses: Course[] = [
     name: '산공수학', 
     courseCode: 'INE2015', 
     category: '전공핵심', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '2-1', 
     lectureHours: 3, 
     labHours: 0, 
@@ -275,7 +275,7 @@ export const allCourses: Course[] = [
     name: '수치해석', 
     courseCode: 'MAT3008', 
     category: '전공기초(필수)', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '2-1', 
     lectureHours: 3, 
     labHours: 0, 
@@ -301,7 +301,7 @@ export const allCourses: Course[] = [
     name: '스마트팩토리개론', 
     courseCode: 'INE2075', 
     category: '전공핵심', 
-    credits: '3.00-4.00', 
+    credits: '3.00', 
     semester: '2-1', 
     lectureHours: 2, 
     labHours: 2, 
@@ -327,7 +327,7 @@ export const allCourses: Course[] = [
     name: '확률통계론', 
     courseCode: 'MAT2017', 
     category: '전공기초(필수)', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '2-1', 
     lectureHours: 3, 
     labHours: 0, 
@@ -339,7 +339,7 @@ export const allCourses: Course[] = [
     whatToLearn: `• 확률 이론: 집합론, 확률의 공리, 조건부 확률, 베이즈 정리 등 불확실성을 다루는 기본 이론을 학습합니다.
 • 확률 변수 및 분포: 이산형/연속형 확률변수, 정규분포, 이항분포 등 다양한 확률 분포의 특성과 적용법을 익힙니다.
 • 통계적 추론 기초: 표본을 통해 모집단의 특성을 파악하는 중심극한정리(CLT), 점추정(MLE, 적률법) 등의 추정 방법론을 배웁니다.`,
-    professorComment: `배석주 교수님 및 타 교수님 언급
+    professorComment: `배석주 교수님
 • 수업 목표: 산업 현장의 제반 문제를 해결하기 위해 확률론, 극한분포, 통계적 추정 방법론 등을 체계적으로 습득하게 하는 것을 목표로 합니다.
 • 타 과목 연계성: 이기천 교수님(데이터마이닝), 송재욱 교수님(투자과학) 등 타 전공 교수님들도 본인 수업을 듣기 위해 확률통계론과 응용통계학을 먼저 수강하고 올 것을 강력히 권장합니다.`,
     seniorTip: `• 성적 관리: 배석주 교수님은 학점을 비교적 후하게 주시는 편이며, 시험 문제가 예제나 기출(족보)과 매우 유사하게 출제되는 경향이 있어 성실하게 공부하면 좋은 학점을 받을 수 있습니다.
@@ -353,7 +353,7 @@ export const allCourses: Course[] = [
     name: '공업경제학', 
     courseCode: 'GEN3058', 
     category: '전공핵심', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '2-2', 
     lectureHours: 3, 
     labHours: 0, 
@@ -378,7 +378,7 @@ export const allCourses: Course[] = [
     name: '데이터구조론', 
     courseCode: 'INE2011', 
     category: '전공핵심', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '2-2', 
     lectureHours: 3, 
     labHours: 0, 
@@ -388,9 +388,7 @@ export const allCourses: Course[] = [
 • 핵심 역량: '코딩 포비아(두려움)'를 없애는 것이 중요합니다. 논리적인 사고를 바탕으로 알고리즘을 서술하고, 이를 컴퓨터 언어로 라이팅(Writing)하는 익숙함을 기르는 것을 목표로 합니다.
 • Java 사용 이유: 엔지니어링 환경에서 Java가 많이 사용되므로, 이를 중급 정도는 사용할 줄 아는 것이 학생들에게 필요하다고 판단합니다. (단, 이후 데이터마이닝 수업에서는 Python을 사용합니다).
 • 연계성: 이 과목들은 데이터 마이닝과 기계 학습 과목을 듣기 위한 환경 구축 및 로직 생성의 기초가 됩니다.
-
-김경환 교수님 (데이터구조론)
-• 수업 목표: 개발자를 양성��는 것이 아니라, 현업에서 개발팀과 협업할 때 필요한 공통 용어와 사고의 프레임워크(DIKW)를 습득하는 데 중점을 둡니다.
+• 수업 목표: 개발자를 양성하는 것이 아니라, 현업에서 개발팀과 협업할 때 필요한 공통 용어와 사고의 프레임워크(DIKW)를 습득하는 데 중점을 둡니다.
 • 평가 방식: 손으로 코드를 짜는 시험보다는 개념적인 이해와 데이터 구조를 선택하는 판단력을 중요하게 봅니다.`,
     seniorTip: `• 난이도와 호불호: Java 언어와 객체지향 개념이 생소하여 초반에 어려움을 느끼고 수강을 포기(드랍)하는 경우도 있으나, 데이터 분석을 희망한다면 피할 수 없는 과목입니다.
 • 진로 연계: 데이터 직무뿐만 아니라 품질 관리, 연구 개발(R&D) 직무에서도 로직을 만들고 통계적 의사결정을 하기 위해 프로그래밍 역량이 필요하므로 수강하는 것이 좋습니다.
@@ -401,7 +399,7 @@ export const allCourses: Course[] = [
     name: '객체지향프로그래밍 + 데이터구조론', 
     courseCode: 'COM2018+INE2011', 
     category: '전공핵심', 
-    credits: '6.00-6.00', 
+    credits: '3.00', 
     semester: '2-2', 
     lectureHours: 6, 
     labHours: 0, 
@@ -419,8 +417,6 @@ export const allCourses: Course[] = [
 • 핵심 역량: 논리적인 사고를 바탕으로 알고리즘을 서술하고, 이를 컴퓨터 언어로 라이팅(Writing)하는 익숙함을 기르는 것이 중요합니다.
 • Java 사용 이유: 엔지니어링 환경에서 Java가 많이 사용되므로, 학생들이 중급 정도는 사용할 줄 알도록 만드는 것이 목표입니다(이후 데이터마이닝에서는 Python 사용).
 • 평가 팁: 과제는 엄격하게 채점하지 않으나(A/B/C 등급제), 기말고사의 비중이 35~40%로 매우 높으므로 기말고사를 잘 치르는 것이 성적의 핵심입니다.
-
-김경환 교수님 (데이터구조론)
 • 수업 목표: 개발자를 양성하는 것이 아니라, 현업에서 개발팀과 협업할 때 필요한 공통 용어와 사고의 프레임워크를 습득하는 데 중점을 둡니다.
 • 평가 방식: 코드를 짜는 시험보다는 개념적인 이해를 묻는 방식이며, 개발자가 될 것이 아니라면 구현 자체에 너무 많은 시간을 뺏기기보다 개념을 확실히 잡는 것을 강조합니다.`,
     seniorTip: `• 진로 연계: 데이터 직무뿐만 아니라 품질 관리, 연구 개발(R&D) 직무에서도 로직을 만들고 통계적 의사결정을 하기 위해 프로그래밍 역량이 필요하므로 수강하는 것이 좋습니다.
@@ -432,7 +428,7 @@ export const allCourses: Course[] = [
     name: '선형계획법', 
     courseCode: 'INE2009', 
     category: '전공핵심', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '2-2', 
     lectureHours: 3, 
     labHours: 0, 
@@ -461,7 +457,7 @@ export const allCourses: Course[] = [
     name: '응용통계학', 
     courseCode: 'COE3003', 
     category: '전공핵심', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '2-2', 
     lectureHours: 3, 
     labHours: 0, 
@@ -475,7 +471,7 @@ export const allCourses: Course[] = [
     ◦ 회귀분석 (Regression Analysis): 데이터 간의 상관관계를 모델링하고 예측하는 단순/다중 선형 회귀분석을 배웁니다.
     ◦ 분산분석 (ANOVA) 및 실험계획법: 여러 집단 간의 차이를 분석하고 실험을 설계하는 기초를 다집니다.
 • 분석 툴 활용: 이론 학습뿐만 아니라 R 프로그래밍을 활용하여 실제 데이터를 분석하고 결과를 도출하는 실습을 병행합니다.`,
-    professorComment: `배석주 교수님 및 타 교수님 언급
+    professorComment: `배석주 교수님
 • 수업 목표: 산업공학도로서 다양한 분야에서 발생하는 문제에 대해 수리적으로 모델링하고 해법을 제시할 수 있는 통계적 기초를 확립하는 것을 목표로 합니다.
 • 타 과목 연계성: 이기천 교수님은 데이터마이닝과 기계학습을 잘 이해하기 위해서는 통계 1, 2(확률통계론, 응용통계학)를 듣고 오는 것이 필요하다고 강조했습니다. 송재욱 교수님은 시계열분석 및 예측 과목의 선수 과목으로 미적분, 확률통계와 함께 응용통계학을 명시했습니다. 안광일 교수님은 데이터마이닝에서 회귀분석이 나오는데, 응용통계학에서 이를 배우고 오면 수업을 따라가는 데 큰 도움이 된다고 언급했습니다.`,
     seniorTip: `• 성적 관리: 배석주 교수님은 성적을 후하게 주시는 편이고 시험이 예제(족보)와 매우 유사하게 나오지만, 그만큼 학생들이 공부를 많이 해와서 변별력이 낮아 실수 하나로 학점이 갈릴 수 있습니다. 만점을 받아야 A+를 노릴 수 있다는 평이 있습니다.
@@ -488,7 +484,7 @@ export const allCourses: Course[] = [
     name: '투자과학', 
     courseCode: 'INE2076', 
     category: '전공핵심', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '2-2', 
     lectureHours: 3, 
     labHours: 0, 
@@ -516,7 +512,7 @@ export const allCourses: Course[] = [
     name: '경영과학과운영연구1', 
     courseCode: 'INE3079', 
     category: '전공핵심', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '3-1', 
     lectureHours: 3, 
     labHours: 0, 
@@ -542,7 +538,7 @@ export const allCourses: Course[] = [
     name: '기계학습과데이터마이닝', 
     courseCode: 'INE5008', 
     category: '전공핵심', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '3-1', 
     lectureHours: 3, 
     labHours: 0, 
@@ -576,7 +572,7 @@ export const allCourses: Course[] = [
     name: '물류관리', 
     courseCode: 'INE4023', 
     category: '전공핵심', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '3-1', 
     lectureHours: 3, 
     labHours: 0, 
@@ -602,7 +598,7 @@ export const allCourses: Course[] = [
     name: '시계열분석및예측', 
     courseCode: 'INE3098', 
     category: '전공핵심', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '3-1', 
     lectureHours: 3, 
     labHours: 0, 
@@ -629,7 +625,7 @@ export const allCourses: Course[] = [
     name: '운용관리', 
     courseCode: 'INE3081', 
     category: '전공핵심', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '3-1', 
     lectureHours: 3, 
     labHours: 0, 
@@ -659,7 +655,7 @@ export const allCourses: Course[] = [
     name: '품질경영', 
     courseCode: 'BUS3021', 
     category: '전공핵심', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '3-1', 
     lectureHours: 3, 
     labHours: 0, 
@@ -687,7 +683,7 @@ export const allCourses: Course[] = [
     name: '경영과학과운영연구2', 
     courseCode: 'INE3080', 
     category: '전공핵심', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '3-2', 
     lectureHours: 3, 
     labHours: 0, 
@@ -716,7 +712,7 @@ export const allCourses: Course[] = [
     name: '경영전략및데이터베이스', 
     courseCode: 'INE2016', 
     category: '전공심화', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '3-2', 
     lectureHours: 3, 
     labHours: 0, 
@@ -731,7 +727,7 @@ export const allCourses: Course[] = [
     professorComment: `김태복 교수님
 • 수업 목표: 학생들이 현업에 나갔을 때 시스템이나 품질 관련 용어를 몰라 대화가 안 되는 일이 없도록, 정확한 전공 용어(Terminology)와 개념을 습득하게 하는 것을 중요하게 생각합니다.
 • 과제(Essay)의 의도: Part 1에서는 전략 관련 아티클을, Part 2에서는 DB 기술 관련 아티클(주로 영문)을 읽고 에세이를 쓰게 합니다. 단순히 내용을 요약하는 것보다 본인의 비판적 사고(Debate)나 생각을 덧붙이는 학생에게 좋은 점수(플러스알파)를 줍니다.
-• SQL 교육: 실습실 여건상 깊이 있는 코딩 실습은 어렵지만, SQL을 어떻게 공부해야 하는지 가이드라인을 제공하고 데모를 보여주어 학생들이 스스로 자격증 공부까지 이어갈 수 있도록 돕습니다.`,
+• SQL 교육: 실습실 여건상 깊이 있는 코딩 실습은 어렵지않고, SQL을 어떻게 공부해야 하는지 가이드라인을 제공하고 데모를 보여주어 학생들이 스스로 자격증 공부까지 이어갈 수 있도록 돕습니다.`,
     seniorTip: `• 자격증 로드맵: 이 과목을 수강한 직후인 겨울방학(혹은 여름방학)에 SQLD 자격증 시험을 보는 것이 '국룰'처럼 여겨집니다. 수업 내용과 자격증 시험 내용이 많이 겹쳐서 가성비가 매우 좋다는 평입니다.
 • 시험은 용어 정의나 개념을 묻는 문제가 비중 있게 출제됩니다.
 • 과제 팁: 교수님이 제공하는 맥킨지 리포트 등의 아티클을 읽고 과제를 할 때, 단순 요약에 그치지 말고 자신의 생각과 비평을 포함하면 좋은 평가를 받을 수 있습니다.`,
@@ -742,7 +738,7 @@ export const allCourses: Course[] = [
     name: '공급사슬경영(Scm)', 
     courseCode: 'INE1008', 
     category: '전공심화', 
-    credits: '3.00-4.00', 
+    credits: '3.00', 
     semester: '3-2', 
     lectureHours: 2, 
     labHours: 2, 
@@ -767,7 +763,7 @@ export const allCourses: Course[] = [
     name: '금융공학개론', 
     courseCode: 'INE3083', 
     category: '전공심화', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '3-2', 
     lectureHours: 3, 
     labHours: 0, 
@@ -786,7 +782,7 @@ export const allCourses: Course[] = [
     seniorTip: `• 높은 진입장벽: 많은 학생들이 [투자과학]과 [시계열분석]까지 듣고 멈추는 경우가 많아, 이 과목까지 수강하는 학생은 금융공학에 대한 의지가 뚜렷한 소수 정예일 가능성이 높습니다.
 • 대학원 연계: 금융공학이나 데이터 트랙으로 깊이 있게 가려면 사실상 대학원 진학이 필수적이라는 평이 많습니다. 이 과목은 대학원 연구를 위한 학부 수준의 최종 관문 역할을 합니다.
 • 평가 방식: 기말고사(30%) 외에 팀 프로젝트(보고서+발표) 비중이 매우 크며(약 50% 이상), 동료 평가(Peer Evaluation)도 포함되므로 팀워크와 실질적인 구현 능력이 중요합니다.
-• 학습 로드맵: 이 과목을 수강하려면 2학년 때부터 수학(미적분, 선형대수)과 통계, 그리고 프로그래밍 기초를 탄탄히 다져놓아야 4학년 때 무리 없이 따라갈 수 있���니다.`,
+• 학습 로드맵: 이 과목을 수강하려면 2학년 때부터 수학(미적분, 선형대수)과 통계, 그리고 프로그래밍 기초를 탄탄히 다져놓아야 4학년 때 무리 없이 따라갈 수 있습니다.`,
     weights: { 공정: 0, 물류: 0, IT: 2, 금융: 3, 컨설팅: 1 },
     careerTags: ["대학원 진학", "취업"]
   },
@@ -794,7 +790,7 @@ export const allCourses: Course[] = [
     name: '신뢰성및보전공학', 
     courseCode: 'INE4044', 
     category: '전공심화', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '3-2', 
     lectureHours: 3, 
     labHours: 0, 
@@ -822,7 +818,7 @@ export const allCourses: Course[] = [
     name: '실험계획법', 
     courseCode: 'INE4004', 
     category: '전공핵심', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '3-2', 
     lectureHours: 3, 
     labHours: 0, 
@@ -850,7 +846,7 @@ export const allCourses: Course[] = [
     name: '네트워크및재고전략', 
     courseCode: 'INE3082', 
     category: '전공심화', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '4-1', 
     lectureHours: 3, 
     labHours: 0, 
@@ -882,7 +878,7 @@ export const allCourses: Course[] = [
     name: '스마트제조데이터분석', 
     courseCode: 'INE4115', 
     category: '전공심화', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '4-1', 
     lectureHours: 3, 
     labHours: 0, 
@@ -907,7 +903,7 @@ export const allCourses: Course[] = [
     name: '응용데이터애널리틱스', 
     courseCode: 'INE4116', 
     category: '전공심화', 
-    credits: '3.00-3.00', 
+    credits: '3.00', 
     semester: '4-1', 
     lectureHours: 3, 
     labHours: 0, 

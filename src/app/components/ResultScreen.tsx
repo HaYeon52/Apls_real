@@ -29,8 +29,10 @@ interface ResultScreenProps {
   onRestart: () => void;
   onViewAllTips: () => void;
   expandedSemester: string | null;
+  expandedCourse: string | null;
   scrollPosition: number;
   onExpandedSemesterChange: (semester: string | null) => void;
+  onExpandedCourseChange: (course: string | null) => void;
 }
 
 export function ResultScreen({
@@ -39,12 +41,14 @@ export function ResultScreen({
   onRestart,
   onViewAllTips,
   expandedSemester,
+  expandedCourse: initialExpandedCourse,
   scrollPosition,
   onExpandedSemesterChange,
+  onExpandedCourseChange,
 }: ResultScreenProps) {
   const recommendations = getRecommendations(userData);
   const [isSaved, setIsSaved] = useState(false);
-  const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
+  const [expandedCourse, setExpandedCourse] = useState<string | null>(initialExpandedCourse);
   const [surveyStartTime] = useState(() => {
     // App.tsx에서 전달받지 않으므로 localStorage에서 가져오기
     const savedTime = localStorage.getItem('survey_start_time');
@@ -293,7 +297,11 @@ export function ResultScreen({
                                 >
                                   {/* 과목명 버튼 */}
                                   <button
-                                    onClick={() => setExpandedCourse(isExpanded ? null : `${semRec.semester}-${course.name}`)}
+                                    onClick={() => {
+                                      const newExpandedCourse = isExpanded ? null : `${semRec.semester}-${course.name}`;
+                                      setExpandedCourse(newExpandedCourse);
+                                      onExpandedCourseChange(newExpandedCourse);
+                                    }}
                                     className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition"
                                   >
                                     <div className="flex items-center gap-3 flex-1 text-left">
@@ -371,9 +379,12 @@ export function ResultScreen({
                                     const fullCourseData = allCourses.find(c => c.name === course.name);
                                     
                                     return (
-                                    <div className="border-t border-gray-200 bg-gray-50 p-6 space-y-6">
+                                    <div 
+                                      className="border-t border-gray-200 bg-gray-50 p-6 space-y-6 cursor-pointer hover:bg-gray-100 transition-colors"
+                                      onClick={() => handleCourseClick(course, cIdx, semRec.semester)}
+                                    >
                                       {/* 추천 근거 */}
-                                      {(course.recommendationReason || course.category === "전공기초(필수)") && (
+                                      {(course.reason || course.recommendationReason || course.category === "전공기초(필수)") && (
                                         <div>
                                           <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
                                             <span className="text-lg">💡</span>
@@ -381,7 +392,7 @@ export function ResultScreen({
                                           </h4>
                                           <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-5 border-2 border-blue-200">
                                             <div className="space-y-4">
-                                              {(course.recommendationReason || "필수 과목입니다. 반드시 수강해야 합니다.")
+                                              {(course.reason || course.recommendationReason || "필수 과목입니다. 반드시 수강해야 합니다.")
                                                 .split("\n")
                                                 .filter((line) => line.trim())
                                                 .map((line, idx) => {
@@ -473,164 +484,11 @@ export function ResultScreen({
                                         </div>
                                       )}
 
-                                      {/* 교수님 코멘트 */}
-                                      {fullCourseData?.professorComment && (
-                                        <div>
-                                          <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                                            <span className="text-lg">👨‍🏫</span>
-                                            <span>교수님 코멘트</span>
-                                          </h4>
-                                          <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-lg p-5 border-2 border-purple-200">
-                                            <div className="space-y-4">
-                                              {fullCourseData.professorComment
-                                                .split("\n")
-                                                .filter((line) => line.trim())
-                                                .map((line, idx) => {
-                                                  const trimmedLine = line.trim();
-                                                  if (trimmedLine.startsWith("•")) {
-                                                    const content = trimmedLine.substring(1).trim();
-                                                    const colonIndex = content.indexOf(":");
-                                                    if (colonIndex > 0) {
-                                                      const label = content.substring(0, colonIndex).trim();
-                                                      const text = content.substring(colonIndex + 1).trim();
-                                                      return (
-                                                        <div key={idx}>
-                                                          <div className="font-semibold text-purple-800 text-base mb-1">
-                                                            {label}
-                                                          </div>
-                                                          <p className="text-gray-700 text-base leading-relaxed">
-                                                            {text}
-                                                          </p>
-                                                        </div>
-                                                      );
-                                                    }
-                                                    return (
-                                                      <p key={idx} className="text-gray-700 text-base leading-relaxed">
-                                                        {content}
-                                                      </p>
-                                                    );
-                                                  }
-                                                  return (
-                                                    <p key={idx} className="text-gray-700 text-base leading-relaxed">
-                                                      {trimmedLine}
-                                                    </p>
-                                                  );
-                                                })}
-                                            </div>
-                                          </div>
-                                        </div>
-                                      )}
-
-                                      {/* 선배 꿀팁 */}
-                                      {fullCourseData?.seniorTip && (
-                                        <div>
-                                          <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                                            <span className="text-lg">🎓</span>
-                                            <span>선배 꿀팁</span>
-                                          </h4>
-                                          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg p-5 border-2 border-amber-200">
-                                            <div>
-                                              {(() => {
-                                                const lines = fullCourseData.seniorTip.split("\n").filter(line => line.trim());
-                                                const sections: { type: 'section' | 'regular', title?: string, items: string[] }[] = [];
-                                                let currentSection: { type: 'section' | 'regular', title?: string, items: string[] } | null = null;
-                                                
-                                                lines.forEach(line => {
-                                                  const trimmed = line.trim();
-                                                  
-                                                  // [이론] 또는 [실험] 섹션 감지
-                                                  if (trimmed.startsWith('[') && trimmed.includes(']')) {
-                                                    if (currentSection) sections.push(currentSection);
-                                                    const title = trimmed.substring(1, trimmed.indexOf(']'));
-                                                    currentSection = { type: 'section', title, items: [] };
-                                                  } else if (trimmed.startsWith('•')) {
-                                                    const content = trimmed.substring(1).trim();
-                                                    if (currentSection && currentSection.type === 'section') {
-                                                      currentSection.items.push(content);
-                                                    } else {
-                                                      if (currentSection) sections.push(currentSection);
-                                                      currentSection = { type: 'regular', items: [content] };
-                                                    }
-                                                  } else if (trimmed) {
-                                                    // 일반 텍스트
-                                                    if (currentSection && currentSection.type === 'section') {
-                                                      currentSection.items.push(trimmed);
-                                                    } else {
-                                                      if (currentSection) sections.push(currentSection);
-                                                      currentSection = { type: 'regular', items: [trimmed] };
-                                                    }
-                                                  }
-                                                });
-                                                
-                                                if (currentSection) sections.push(currentSection);
-                                                
-                                                return sections.map((section, sectionIdx) => {
-                                                  if (section.type === 'section') {
-                                                    // [이론] 또는 [실험] 섹션
-                                                    return (
-                                                      <div key={sectionIdx} className={sectionIdx > 0 ? "mt-6" : ""}>
-                                                        <div className="font-bold text-amber-900 text-lg mb-4 flex items-center gap-2">
-                                                          📌 {section.title}
-                                                        </div>
-                                                        <div className="space-y-4">
-                                                          {section.items.map((item, itemIdx) => {
-                                                            const colonIndex = item.indexOf(':');
-                                                            if (colonIndex > 0) {
-                                                              const label = item.substring(0, colonIndex).trim();
-                                                              const text = item.substring(colonIndex + 1).trim();
-                                                              return (
-                                                                <div key={itemIdx}>
-                                                                  <div className="font-semibold text-amber-800 text-base mb-1">
-                                                                    {label}
-                                                                  </div>
-                                                                  <p className="text-gray-700 text-base leading-relaxed">
-                                                                    {text}
-                                                                  </p>
-                                                                </div>
-                                                              );
-                                                            }
-                                                            return (
-                                                              <p key={itemIdx} className="text-gray-700 text-base leading-relaxed">
-                                                                {item}
-                                                              </p>
-                                                            );
-                                                          })}
-                                                        </div>
-                                                      </div>
-                                                    );
-                                                  } else {
-                                                    // 일반 bullet 항목들
-                                                    return section.items.map((item, itemIdx) => {
-                                                      const colonIndex = item.indexOf(':');
-                                                      const isFirst = sectionIdx === 0 && itemIdx === 0;
-                                                      
-                                                      if (colonIndex > 0) {
-                                                        const label = item.substring(0, colonIndex).trim();
-                                                        const text = item.substring(colonIndex + 1).trim();
-                                                        return (
-                                                          <div key={`${sectionIdx}-${itemIdx}`} className={!isFirst ? "mt-4" : ""}>
-                                                            <div className="font-semibold text-amber-800 text-base mb-1">
-                                                              {label}
-                                                            </div>
-                                                            <p className="text-gray-700 text-base leading-relaxed">
-                                                              {text}
-                                                            </p>
-                                                          </div>
-                                                        );
-                                                      }
-                                                      return (
-                                                        <div key={`${sectionIdx}-${itemIdx}`} className={!isFirst ? "mt-4" : ""}>
-                                                          <p className="text-gray-700 text-base leading-relaxed">
-                                                            {item}
-                                                          </p>
-                                                        </div>
-                                                      );
-                                                    });
-                                                  }
-                                                });
-                                              })()}
-                                            </div>
-                                          </div>
+                                      {/* 클릭 안내 */}
+                                      {(fullCourseData?.professorComment || fullCourseData?.seniorTip) && (
+                                        <div className="text-center text-gray-700 py-2">
+                                          <span className="text-2xl mr-2">👉</span>
+                                          <span>클릭하면 교수님 코멘트 및 선배 꿀팁을 볼 수 있습니다</span>
                                         </div>
                                       )}
                                     </div>
