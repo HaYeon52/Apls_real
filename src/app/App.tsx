@@ -67,20 +67,30 @@ export default function App() {
   // 2. Google Analytics 초기화 (중복 실행 방지 기능 추가)
   useEffect(() => {
     if (!window.gtag) {
-      const script1 = document.createElement('script');
-      script1.async = true;
-      script1.src = 'https://www.googletagmanager.com/gtag/js?id=G-PZY542N5YW';
-      document.head.appendChild(script1);
+      try {
+        const script1 = document.createElement('script');
+        script1.async = true;
+        script1.src = 'https://www.googletagmanager.com/gtag/js?id=G-PZY542N5YW';
+        
+        // 로드 실패 시 에러 무시
+        script1.onerror = () => {
+          console.log('⚠️ Google Analytics 로드 실패 (네트워크 문제 또는 광고 차단기)');
+        };
+        
+        document.head.appendChild(script1);
 
-      const script2 = document.createElement('script');
-      script2.innerHTML = `
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-PZY542N5YW');
-      `;
-      document.head.appendChild(script2);
-      console.log('✅ Google Analytics 로드 완료');
+        const script2 = document.createElement('script');
+        script2.innerHTML = `
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-PZY542N5YW');
+        `;
+        document.head.appendChild(script2);
+        console.log('✅ Google Analytics 로드 시작');
+      } catch (error) {
+        console.log('⚠️ Google Analytics 초기화 실패:', error);
+      }
     }
   }, []);
 

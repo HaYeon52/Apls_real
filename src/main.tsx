@@ -1,5 +1,5 @@
 import React from 'react'
-import ReactDOM from 'react-dom/client'
+import ReactDOM from 'react-dom/root'
 import App from './app/App'
 import './styles/index.css'
 import './styles/fonts.css'
@@ -8,18 +8,42 @@ import './styles/theme.css'
 
 // Supabase 쿠키 에러 완전 억제
 const originalError = console.error;
+const originalWarn = console.warn;
+
 console.error = (...args: any[]) => {
   const errorMessage = args[0]?.toString() || '';
-  // Supabase 쿠키 관련 에러는 무시
+  // Supabase 쿠키 관련 에러 및 네트워크 에러는 무시
   if (
     errorMessage.includes('Unable to update session cookie') ||
     errorMessage.includes('Unable to set cookie') ||
     errorMessage.includes('supabase') ||
-    errorMessage.includes('session cookie')
+    errorMessage.includes('session cookie') ||
+    errorMessage.includes('cookie') ||
+    errorMessage.includes('Failed to fetch') ||
+    errorMessage.includes('NetworkError') ||
+    errorMessage.includes('fetch')
   ) {
     return;
   }
   originalError.apply(console, args);
+};
+
+console.warn = (...args: any[]) => {
+  const warnMessage = args[0]?.toString() || '';
+  // Supabase 쿠키 관련 경고 및 네트워크 경고는 무시
+  if (
+    warnMessage.includes('Unable to update session cookie') ||
+    warnMessage.includes('Unable to set cookie') ||
+    warnMessage.includes('supabase') ||
+    warnMessage.includes('session cookie') ||
+    warnMessage.includes('cookie') ||
+    warnMessage.includes('Failed to fetch') ||
+    warnMessage.includes('NetworkError') ||
+    warnMessage.includes('fetch')
+  ) {
+    return;
+  }
+  originalWarn.apply(console, args);
 };
 
 // 브라우저 캐시 및 서비스 워커 초기화

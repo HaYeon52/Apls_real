@@ -10,7 +10,12 @@ interface Recommendations {
 
 export interface SemesterRecommendation {
   semester: string; // '2-1', '2-2', '3-1', '3-2', '4-1', '4-2'
-  courses: (Course & { score: number })[];
+  courses: (Course & { 
+    score: number;
+    finalScore?: number;
+    isStrategic?: boolean;
+    w_p1?: number;
+  })[];
 }
 
 // 학년-학기를 숫자로 변환
@@ -39,14 +44,28 @@ const interestToCategoryMap: Record<string, string> = {
   "경영전략·컨설팅": "컨설팅"
 };
 
-// 새로운 추천 알고리즘
+// 개선된 추천 알고리즘
 function calculateNewScore(
   course: Course,
   interestAreas: string[],
-): { score: number; normalizedScore: number; passesHardFilter: boolean } {
+): { 
+  score: number; 
+  normalizedScore: number; 
+  passesRelaxedFilter: boolean;
+  w_p1: number;
+  w_p2: number;
+  w_p3: number;
+} {
   // 가중치가 없는 과목은 0점 처리
   if (!course.weights) {
-    return { score: 0, normalizedScore: 0, passesHardFilter: false };
+    return { 
+      score: 0, 
+      normalizedScore: 0, 
+      passesRelaxedFilter: false,
+      w_p1: 0,
+      w_p2: 0,
+      w_p3: 0
+    };
   }
 
   // 우선순위 가중치: p1=1.0, p2=0.7, p3=0.4
@@ -59,7 +78,7 @@ function calculateNewScore(
 
   // 디버그 로그 (첫 호출 시에만)
   if (!calculateNewScore.logged) {
-    console.log('🔍 [추천 알고리즘 디버깅]');
+    console.log('🔍 [개선된 추천 알고리즘 시작]');
     console.log('  입력 관심분야:', interestAreas);
     console.log('  매핑된 카테고리: p1=', p1, ', p2=', p2, ', p3=', p3);
     calculateNewScore.logged = true;
@@ -75,20 +94,27 @@ function calculateNewScore(
   if (p2) S += 0.7 * w_p2;
   if (p3) S += 0.4 * w_p3;
 
-  // 하드필터 (강화): 1순위 분야에서 최소 2 이상
-  const passesHardFilter = w_p1 >= 2;
+  // 완화된 하드필터: (1순위 가중치 >= 2) OR (2순위 가중치 == 3)
+  const passesRelaxedFilter = (w_p1 >= 2) || (w_p2 === 3);
 
-  // 정규화 점수 계산
+  // 정규화 점수 계산 (참고용)
   const sumA = (p1 ? 1.0 : 0) + (p2 ? 0.7 : 0) + (p3 ? 0.4 : 0);
   const Smax = 3 * sumA;
   const Snorm = Smax > 0 ? S / Smax : 0;
 
   // 상세 디버그 (점수가 있는 경우만)
   if (S > 0) {
-    console.log(`  📊 ${course.name}: S=${S.toFixed(2)}, Snorm=${Snorm.toFixed(2)}, w[p1]=${w_p1}, 하드필터=${passesHardFilter}`);
+    console.log(`  📊 ${course.name}: S=${S.toFixed(2)}, w[p1]=${w_p1}, w[p2]=${w_p2}, 완화필터=${passesRelaxedFilter}`);
   }
 
-  return { score: S, normalizedScore: Snorm, passesHardFilter };
+  return { 
+    score: S, 
+    normalizedScore: Snorm, 
+    passesRelaxedFilter,
+    w_p1,
+    w_p2,
+    w_p3
+  };
 }
 // 로그 플래그 추가 (타입스크립트 에러 방지)
 (calculateNewScore as any).logged = false;
@@ -114,6 +140,49 @@ function calculateRoadmapScore(
   });
 
   return score;
+}
+
+// 미래 역추적 가산점 로직: 미래 핵심 과목의 선수과목인지 판단
+function calculateFutureLookAheadBonus(
+  course: Course,
+  currentSemesterNum: number,
+  interestAreas: string[],
+  completedCourses: string[],
+): { bonus: number; isStrategic: boolean } {
+  // 1순위 관심분야 추출
+  const p1 = interestAreas[0] ? interestToCategoryMap[interestAreas[0]] : null;
+  if (!p1) {
+    return { bonus: 0, isStrategic: false };
+  }
+
+  // 현재 학기보다 미래 학기의 모든 과목 탐색
+  const futureCourses = allCourses.filter((futureCourse) => {
+    const [grade, sem] = futureCourse.semester.split("-");
+    const futureSemesterNum = (parseInt(grade) - 1) * 2 + parseInt(sem);
+    
+    // 미래 학기 & 아직 수강하지 않은 과목
+    return (
+      futureSemesterNum > currentSemesterNum &&
+      !completedCourses.includes(futureCourse.name)
+    );
+  });
+
+  // p1 가중치가 3점(최상)인 핵심 과목 찾기
+  const coreFutureCourses = futureCourses.filter((futureCourse) => {
+    if (!futureCourse.weights) return false;
+    const weight = futureCourse.weights[p1 as keyof typeof futureCourse.weights];
+    return weight === 3;
+  });
+
+  // 현재 과목이 핵심 과목의 선수과목인지 확인
+  for (const coreCourse of coreFutureCourses) {
+    if (coreCourse.prerequisites && coreCourse.prerequisites.includes(course.name)) {
+      console.log(`  🎯 전략적 과목 발견: ${course.name} → 미래 핵심과목: ${coreCourse.name} (${coreCourse.semester})`);
+      return { bonus: 50, isStrategic: true };
+    }
+  }
+
+  return { bonus: 0, isStrategic: false };
 }
 
 export function getRecommendations(
@@ -203,19 +272,34 @@ export function getRecommendations(
         return {
           ...course,
           score: 998,
+          finalScore: 998,
           normalizedScore: 1.0,
-          passesHardFilter: true,
+          passesRelaxedFilter: true,
+          w_p1: 3,
+          isStrategic: false,
         };
       }
 
-      // weights가 있는 경우: 새로운 알고리즘 적용
+      // weights가 있는 경우: 개선된 알고리즘 적용
       if (course.weights) {
         const result = calculateNewScore(course, userData.interestArea);
+        const futureBonus = calculateFutureLookAheadBonus(
+          course,
+          currentSemesterNum,
+          userData.interestArea,
+          userData.completedCourses
+        );
+        
+        const finalScore = result.score + futureBonus.bonus;
+        
         return {
           ...course,
           score: result.score,
+          finalScore: finalScore,
           normalizedScore: result.normalizedScore,
-          passesHardFilter: result.passesHardFilter,
+          passesRelaxedFilter: result.passesRelaxedFilter,
+          w_p1: result.w_p1,
+          isStrategic: futureBonus.isStrategic,
         };
       }
       
@@ -225,22 +309,47 @@ export function getRecommendations(
       return {
         ...course,
         score: roadmapScore * 3,
+        finalScore: roadmapScore * 3,
         normalizedScore: roadmapScore > 0 ? 1.0 : 0,
-        passesHardFilter: roadmapScore > 0,
+        passesRelaxedFilter: roadmapScore > 0,
+        w_p1: 0,
+        isStrategic: false,
       };
     })
-    // 필터링: Snorm >= 0.60 & 하드필터 통과
+    // 완화된 필터링: (1순위 가중치 >= 2) OR (2순위 가중치 == 3) OR (score > 0 for no-weights courses)
     .filter((course: any) => {
       // 산업공학개론은 무조건 포함
       if (course.name === "산업공학개론") return true;
       
-      // 하드필터 & Snorm >= 0.60
-      return course.passesHardFilter && course.normalizedScore >= 0.60;
+      // 가중치가 있으면 완화된 필터 적용
+      if (course.passesRelaxedFilter) return true;
+      
+      // 가중치가 없지만 점수가 있으면 통과
+      if (course.score > 0) return true;
+      
+      return false;
     })
-    .sort((a, b) => b.score - a.score);
+    // 3단계 정렬: 1) finalScore (내림차순) → 2) w_p1 (내림차순) → 3) name (오름차순)
+    .sort((a, b) => {
+      // 1단계: finalScore 비교
+      if (b.finalScore !== a.finalScore) {
+        return b.finalScore - a.finalScore;
+      }
+      // 2단계: w_p1 비교
+      if (b.w_p1 !== a.w_p1) {
+        return b.w_p1 - a.w_p1;
+      }
+      // 3단계: name 오름차순 (가나다순)
+      return a.name.localeCompare(b.name, 'ko');
+    });
 
-  // 학기당 최대 3과목 제한 (필수 과목 제외)
+  // 학기당 최대 3과목 제한
   const topElectives = scoredElectives.slice(0, 3);
+
+  console.log(`📋 [현재 학기 추천 결과] 총 ${topElectives.length}개 과목`);
+  topElectives.forEach((c: any) => {
+    console.log(`  - ${c.name}: finalScore=${c.finalScore}, w_p1=${c.w_p1}, isStrategic=${c.isStrategic}`);
+  });
 
   // 최종 추천 과목 = 필수 + 선택 (Top 3)
   recommendations.currentSemesterCourses = [
@@ -295,7 +404,13 @@ export function getRecommendations(
         return true;
       });
 
-      const coursesWithScore: (Course & { score: number; normalizedScore?: number })[] =
+      const coursesWithScore: (Course & { 
+        score: number; 
+        finalScore?: number;
+        normalizedScore?: number;
+        w_p1?: number;
+        isStrategic?: boolean;
+      })[] =
         semesterCourses.map((course) => {
           const isRequired = course.category === "전공기초(필수)";
           
@@ -304,7 +419,10 @@ export function getRecommendations(
             return {
               ...course,
               score: 998, // 필수 다음으로 높은 우선순위
+              finalScore: 998,
               normalizedScore: 1.0,
+              w_p1: 3,
+              isStrategic: false,
             };
           }
           
@@ -313,18 +431,33 @@ export function getRecommendations(
             return {
               ...course,
               score: 999,
+              finalScore: 999,
               normalizedScore: 1.0,
+              w_p1: 3,
+              isStrategic: false,
             };
           }
           
-          // 선택 과목: 새로운 알고리즘 적용
+          // 선택 과목: 개선된 알고리즘 적용
           if (course.weights) {
             const result = calculateNewScore(course, userData.interestArea);
+            const futureBonus = calculateFutureLookAheadBonus(
+              course,
+              semesterNum,
+              userData.interestArea,
+              userData.completedCourses
+            );
+            
+            const finalScore = result.score + futureBonus.bonus;
+            
             return {
               ...course,
               score: result.score,
+              finalScore: finalScore,
               normalizedScore: result.normalizedScore,
-              passesHardFilter: result.passesHardFilter,
+              passesRelaxedFilter: result.passesRelaxedFilter,
+              w_p1: result.w_p1,
+              isStrategic: futureBonus.isStrategic,
             };
           } else {
             // weights가 없는 경우: 로드맵 기반 점수 사용
@@ -332,7 +465,10 @@ export function getRecommendations(
             return {
               ...course,
               score: roadmapScore * 3,
+              finalScore: roadmapScore * 3,
               normalizedScore: roadmapScore > 0 ? 1.0 : 0,
+              w_p1: 0,
+              isStrategic: false,
             };
           }
         });
@@ -342,31 +478,31 @@ export function getRecommendations(
         (c) => c.category === "전공기초(필수)" || c.name === "산업공학개론"
       );
 
-      // 선택 과목 필터링: Snorm >= 0.60 & 하드필터
+      // 선택 과목 필터링: 완화된 필터 적용
       let electivesInSemester = coursesWithScore
         .filter((c) => {
           // 필수 과목과 산업공학개론 제외
           if (c.category === "전공기초(필수)") return false;
           if (c.name === "산업공학개론") return false;
           
-          // 하드필터 & Snorm >= 0.60
-          return (c as any).passesHardFilter && (c.normalizedScore || 0) >= 0.60;
+          // 완화된 필터: passesRelaxedFilter 또는 score > 0
+          return (c as any).passesRelaxedFilter || c.score > 0;
         })
-        .sort((a, b) => b.score - a.score);
+        // 3단계 정렬: 1) finalScore → 2) w_p1 → 3) name
+        .sort((a, b) => {
+          const finalScoreA = a.finalScore || a.score;
+          const finalScoreB = b.finalScore || b.score;
+          
+          if (finalScoreB !== finalScoreA) {
+            return finalScoreB - finalScoreA;
+          }
+          if ((b.w_p1 || 0) !== (a.w_p1 || 0)) {
+            return (b.w_p1 || 0) - (a.w_p1 || 0);
+          }
+          return a.name.localeCompare(b.name, 'ko');
+        });
 
-      // Fallback: 0개면 기준을 0.55로 낮춤
-      if (electivesInSemester.length === 0) {
-        electivesInSemester = coursesWithScore
-          .filter((c) => {
-            if (c.category === "전공기초(필수)") return false;
-            if (c.name === "산업공학개론") return false;
-            
-            return (c as any).passesHardFilter && (c.normalizedScore || 0) >= 0.55;
-          })
-          .sort((a, b) => b.score - a.score);
-      }
-
-      // 여전히 0개면 점수 상위 Top 2 강제 표시
+      // Fallback: 0개면 모든 선택 과목 중 상위 2개 강제 표시
       if (electivesInSemester.length === 0) {
         electivesInSemester = coursesWithScore
           .filter((c) => {
@@ -374,7 +510,18 @@ export function getRecommendations(
             if (c.name === "산업공학개론") return false;
             return true;
           })
-          .sort((a, b) => b.score - a.score)
+          .sort((a, b) => {
+            const finalScoreA = a.finalScore || a.score;
+            const finalScoreB = b.finalScore || b.score;
+            
+            if (finalScoreB !== finalScoreA) {
+              return finalScoreB - finalScoreA;
+            }
+            if ((b.w_p1 || 0) !== (a.w_p1 || 0)) {
+              return (b.w_p1 || 0) - (a.w_p1 || 0);
+            }
+            return a.name.localeCompare(b.name, 'ko');
+          })
           .slice(0, 2);
       }
 
@@ -385,7 +532,18 @@ export function getRecommendations(
       const finalCourses = [
         ...requiredInSemester,
         ...topElectives
-      ].sort((a, b) => b.score - a.score);
+      ].sort((a, b) => {
+        const finalScoreA = a.finalScore || a.score;
+        const finalScoreB = b.finalScore || b.score;
+        
+        if (finalScoreB !== finalScoreA) {
+          return finalScoreB - finalScoreA;
+        }
+        if ((b.w_p1 || 0) !== (a.w_p1 || 0)) {
+          return (b.w_p1 || 0) - (a.w_p1 || 0);
+        }
+        return a.name.localeCompare(b.name, 'ko');
+      });
 
       return {
         semester: sem,
