@@ -384,7 +384,7 @@ export function ResultScreen({
                                       onClick={() => handleCourseClick(course, cIdx, semRec.semester)}
                                     >
                                       {/* 추천 근거 */}
-                                      {(course.reason || course.recommendationReason || course.category === "전공기초(필수)") && (
+                                      {(course.reason || fullCourseData?.recommendationReason || course.recommendationReason || course.category === "전공기초(필수)") && (
                                         <div>
                                           <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
                                             <span className="text-lg">💡</span>
@@ -392,7 +392,7 @@ export function ResultScreen({
                                           </h4>
                                           <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-5 border-2 border-blue-200">
                                             <div className="space-y-4">
-                                              {(course.reason || course.recommendationReason || "필수 과목입니다. 반드시 수강해야 합니다.")
+                                              {(course.reason || fullCourseData?.recommendationReason || course.recommendationReason || "필수 과목입니다. 반드시 수강해야 합니다.")
                                                 .split("\n")
                                                 .filter((line) => line.trim())
                                                 .map((line, idx) => {
