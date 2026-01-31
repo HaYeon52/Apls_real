@@ -18,10 +18,9 @@ export function AllCourseTipsPage({ onBack }: AllCourseTipsPageProps) {
     setExpandedCourse(expandedCourse === courseName ? null : courseName);
   };
 
-  // 추천 근거, 무엇을 배우는가, 교수님 코멘트, 선배 꿀팁 중 하나라도 있는 과목만 필터링
+  // 무엇을 배우는가, 교수님 코멘트, 선배 꿀팁 중 하나라도 있는 과목만 필터링 (추천 근거 제외)
   const coursesWithContent = allCourses.filter(
     (course) =>
-      course.recommendationReason ||
       course.whatToLearn ||
       course.professorComment ||
       course.seniorTip
@@ -45,7 +44,7 @@ export function AllCourseTipsPage({ onBack }: AllCourseTipsPageProps) {
             📚 모든 과목 꿀팁 모음
           </h2>
           <p className="text-gray-600">
-            과목명을 클릭하면 추천 근거, 교수님 코멘트, 선배 꿀팁을 확인할 수
+            과목명을 클릭하면 교수님 코멘트, 선배 꿀팁을 확인할 수
             있습니다
           </p>
         </div>
@@ -92,54 +91,6 @@ export function AllCourseTipsPage({ onBack }: AllCourseTipsPageProps) {
                 {/* 확장된 내용 */}
                 {isExpanded && (
                   <div className="border-t border-gray-200 bg-gray-50 p-6 space-y-6">
-                    {/* 추천 근거 */}
-                    {course.recommendationReason && (
-                      <div>
-                        <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                          <span className="text-lg">💡</span>
-                          <span>추천 근거</span>
-                        </h4>
-                        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-5 border-2 border-blue-200">
-                          <div className="space-y-4">
-                            {course.recommendationReason
-                              .split("\n")
-                              .filter((line) => line.trim())
-                              .map((line, idx) => {
-                                const trimmedLine = line.trim();
-                                if (trimmedLine.startsWith("•")) {
-                                  const content = trimmedLine.substring(1).trim();
-                                  const colonIndex = content.indexOf(":");
-                                  if (colonIndex > 0) {
-                                    const label = content.substring(0, colonIndex).trim();
-                                    const text = content.substring(colonIndex + 1).trim();
-                                    return (
-                                      <div key={idx}>
-                                        <div className="font-semibold text-blue-800 text-base mb-1">
-                                          {label}
-                                        </div>
-                                        <p className="text-gray-700 text-base leading-relaxed">
-                                          {text}
-                                        </p>
-                                      </div>
-                                    );
-                                  }
-                                  return (
-                                    <p key={idx} className="text-gray-700 text-base leading-relaxed">
-                                      {content}
-                                    </p>
-                                  );
-                                }
-                                return (
-                                  <p key={idx} className="text-gray-700 text-base leading-relaxed">
-                                    {trimmedLine}
-                                  </p>
-                                );
-                              })}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
                     {/* 무엇을 배우는가 */}
                     {course.whatToLearn && (
                       <div>

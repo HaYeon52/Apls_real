@@ -39,12 +39,14 @@ export function AcademicInfoStep({
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
       event: 'step2_complete',
+      user_student_id: userData.studentId,
       user_grade: userData.grade,
       user_semester: userData.semester,
       step_duration: stepDuration
     });
 
     console.log('📊 [GTM] step2_complete:', {
+      user_student_id: userData.studentId,
       user_grade: userData.grade,
       user_semester: userData.semester,
       step_duration: stepDuration

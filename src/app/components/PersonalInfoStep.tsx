@@ -44,6 +44,7 @@ export function PersonalInfoStep({
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
       event: 'step1_complete',
+      user_name: userData.name,
       user_birth: userData.age,
       user_gender: userData.gender,
       military_status: userData.gender === "여성" ? "해당없음" : userData.militaryStatus,
@@ -52,6 +53,7 @@ export function PersonalInfoStep({
     });
 
     console.log('📊 [GTM] step1_complete:', {
+      user_name: userData.name,
       user_birth: userData.age,
       user_gender: userData.gender,
       military_status: userData.gender === "여성" ? "해당없음" : userData.militaryStatus,
