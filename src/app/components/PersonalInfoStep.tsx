@@ -5,12 +5,14 @@ interface PersonalInfoStepProps {
   userData: UserData;
   setUserData: (data: UserData) => void;
   onNext: () => void;
+  onBack: () => void;
 }
 
 export function PersonalInfoStep({
   userData,
   setUserData,
   onNext,
+  onBack,
 }: PersonalInfoStepProps) {
   const [startTime] = useState(Date.now());
 
@@ -271,6 +273,14 @@ export function PersonalInfoStep({
             }`}
           >
             다음
+          </button>
+
+          {/* 이전 버튼 */}
+          <button
+            onClick={onBack}
+            className="w-full py-4 rounded-lg font-medium bg-gray-200 text-gray-400 hover:bg-gray-300 transition"
+          >
+            이전
           </button>
         </div>
 

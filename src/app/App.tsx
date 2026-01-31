@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { StartScreen } from "./components/StartScreen";
+import { ConsentScreen } from "./components/ConsentScreen";
 import { PersonalInfoStep } from "./components/PersonalInfoStep";
 import { AcademicInfoStep } from "./components/AcademicInfoStep";
 import { CourseSelectionStep } from "./components/CourseSelectionStep";
@@ -97,24 +98,24 @@ export default function App() {
 
   // 설문 시작 시간 저장
   useEffect(() => {
-    if (step === 1 && !localStorage.getItem('survey_start_time')) {
+    if (step === 2 && !localStorage.getItem('survey_start_time')) {
       localStorage.setItem('survey_start_time', Date.now().toString());
       console.log('⏱️ 설문 시작 시간 기록:', new Date().toLocaleTimeString());
     }
   }, [step]);
 
   const handleNext = () => {
-    // 1학년 1학기면 step 3(들은 수업)를 건너뛰고 step 4로
-    if (step === 2 && userData.grade === '1학년' && userData.semester === '1학기') {
-      setStep(4);
+    // 1학년 1학기면 step 4(들은 수업)를 건너뛰고 step 5로
+    if (step === 3 && userData.grade === '1학년' && userData.semester === '1학기') {
+      setStep(5);
     } else {
       setStep(step + 1);
     }
   };
 
   const handleBack = () => {
-    if (step === 4 && userData.grade === '1학년' && userData.semester === '1학기') {
-      setStep(2);
+    if (step === 5 && userData.grade === '1학년' && userData.semester === '1학기') {
+      setStep(3);
     } else {
       setStep(step - 1);
     }
@@ -181,15 +182,14 @@ export default function App() {
       )}
       
       {step === 1 && (
-        <PersonalInfoStep
-          userData={userData}
-          setUserData={setUserData}
+        <ConsentScreen
           onNext={handleNext}
+          onBack={() => setStep(0)}
         />
       )}
 
       {step === 2 && (
-        <AcademicInfoStep
+        <PersonalInfoStep
           userData={userData}
           setUserData={setUserData}
           onNext={handleNext}
@@ -198,7 +198,7 @@ export default function App() {
       )}
 
       {step === 3 && (
-        <CourseSelectionStep
+        <AcademicInfoStep
           userData={userData}
           setUserData={setUserData}
           onNext={handleNext}
@@ -207,7 +207,7 @@ export default function App() {
       )}
 
       {step === 4 && (
-        <CareerPathStep
+        <CourseSelectionStep
           userData={userData}
           setUserData={setUserData}
           onNext={handleNext}
@@ -216,7 +216,7 @@ export default function App() {
       )}
 
       {step === 5 && (
-        <InterestAreaStep
+        <CareerPathStep
           userData={userData}
           setUserData={setUserData}
           onNext={handleNext}
@@ -225,12 +225,21 @@ export default function App() {
       )}
 
       {step === 6 && (
+        <InterestAreaStep
+          userData={userData}
+          setUserData={setUserData}
+          onNext={handleNext}
+          onBack={handleBack}
+        />
+      )}
+
+      {step === 7 && (
         <DisclaimerScreen
           onConfirm={handleNext}
         />
       )}
 
-      {step === 7 && (
+      {step === 8 && (
         <ResultScreen
           userData={userData}
           onCourseClick={handleCourseClick}
