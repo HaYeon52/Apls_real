@@ -7,9 +7,25 @@ interface ConsentScreenProps {
 
 export function ConsentScreen({ onNext, onBack }: ConsentScreenProps) {
   const [isChecked, setIsChecked] = useState(false);
+  const [startTime] = useState(Date.now());
 
   const handleNext = () => {
     if (isChecked) {
+      const stepDuration = Math.round((Date.now() - startTime) / 1000);
+
+      // GTM 이벤트 전송
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'consent_complete',
+        consent_agreed: true,
+        step_duration: stepDuration
+      });
+
+      console.log('📊 [GTM] consent_complete:', {
+        consent_agreed: true,
+        step_duration: stepDuration
+      });
+
       onNext();
     }
   };

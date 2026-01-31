@@ -1,10 +1,30 @@
 import { motion } from "motion/react";
+import { useState } from "react";
 
 interface DisclaimerScreenProps {
   onConfirm: () => void;
 }
 
 export function DisclaimerScreen({ onConfirm }: DisclaimerScreenProps) {
+  const [startTime] = useState(Date.now());
+
+  const handleConfirm = () => {
+    const stepDuration = Math.round((Date.now() - startTime) / 1000);
+
+    // GTM 이벤트 전송
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'disclaimer_confirmed',
+      step_duration: stepDuration
+    });
+
+    console.log('📊 [GTM] disclaimer_confirmed:', {
+      step_duration: stepDuration
+    });
+
+    onConfirm();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
       <motion.div
@@ -69,7 +89,7 @@ export function DisclaimerScreen({ onConfirm }: DisclaimerScreenProps) {
           transition={{ delay: 0.5 }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          onClick={onConfirm}
+          onClick={handleConfirm}
           className="w-full py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300"
         >
           결과 확인하기

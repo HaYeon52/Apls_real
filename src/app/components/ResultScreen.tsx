@@ -87,6 +87,8 @@ export function ResultScreen({
     );
     
     window.dataLayer = window.dataLayer || [];
+    
+    // form_complete 이벤트
     window.dataLayer.push({
       event: 'form_complete',
       recommended_courses_count: totalRecommendedCourses,
@@ -103,6 +105,23 @@ export function ResultScreen({
       has_required_warning: recommendations.missingRequiredCourses.length > 0,
       total_time_seconds: totalTimeSeconds
     });
+
+    // survey_complete 이벤트
+    window.dataLayer.push({
+      event: 'survey_complete',
+      total_duration: totalTimeSeconds,
+      interest_areas: userData.interestArea.join(', '),
+      career_paths: userData.careerPath.join(', ')
+    });
+
+    console.log('📊 [GTM] survey_complete:', {
+      total_duration: totalTimeSeconds,
+      interest_areas: userData.interestArea.join(', '),
+      career_paths: userData.careerPath.join(', ')
+    });
+
+    // localStorage 정리
+    localStorage.removeItem('survey_start_time');
   }, []);
 
   const handleCourseClick = (course: any, rank: number, semester: string) => {
